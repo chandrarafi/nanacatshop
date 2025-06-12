@@ -66,128 +66,7 @@
     </div>
 </div>
 
-<!-- Styles for this page -->
-<style>
-    /* Fix for modal backdrop */
-    body.modal-open {
-        overflow: hidden !important;
-        padding-right: 0 !important;
-    }
 
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(44, 62, 80, 0.6) !important;
-        backdrop-filter: blur(4px) !important;
-        -webkit-backdrop-filter: blur(4px) !important;
-        z-index: 1040 !important;
-    }
-
-    .modal-backdrop.show {
-        opacity: 1 !important;
-    }
-
-    .modal {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        z-index: 1060 !important;
-        width: 100% !important;
-        height: 100% !important;
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
-        outline: 0 !important;
-    }
-
-    .modal-dialog {
-        margin: 1.75rem auto !important;
-        max-width: 500px !important;
-    }
-
-    .modal-lg {
-        max-width: 800px !important;
-    }
-
-    .modal-content {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3) !important;
-        border: none !important;
-        border-radius: 0.5rem !important;
-    }
-
-    /* Responsive table styling */
-    @media (max-width: 767.98px) {
-
-        .table th,
-        .table td {
-            white-space: nowrap;
-            padding: 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        #usersTable_wrapper .row:first-child,
-        #usersTable_wrapper .row:last-child {
-            margin-bottom: 1rem;
-        }
-
-        #usersTable_wrapper .dataTables_info,
-        #usersTable_wrapper .dataTables_paginate {
-            text-align: center !important;
-            float: none !important;
-            margin-top: 0.5rem;
-        }
-
-        .modal-dialog {
-            margin: 0.75rem auto !important;
-            max-width: calc(100% - 20px) !important;
-        }
-
-        .modal-lg {
-            max-width: calc(100% - 20px) !important;
-        }
-    }
-
-    /* Fix for Tampilkan X data */
-    .dataTables_length {
-        margin-bottom: 10px;
-    }
-
-    .dataTables_length select {
-        min-width: 60px;
-        padding: 0.35rem;
-        border-radius: 0.25rem;
-        margin: 0 5px;
-        border-color: #dee2e6;
-    }
-
-    .dataTables_filter {
-        margin-bottom: 10px;
-    }
-
-    @media (max-width: 767.98px) {
-
-        .dataTables_length,
-        .dataTables_filter {
-            text-align: left !important;
-            display: block;
-            width: 100%;
-        }
-    }
-
-    /* Action buttons in table */
-    .btn-action {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
-    }
-
-    /* Badge styles */
-    .badge {
-        font-weight: 600;
-        padding: 0.35rem 0.65rem;
-    }
-</style>
 
 <?= $this->endSection() ?>
 
@@ -240,45 +119,18 @@
                     data: 'email'
                 },
                 {
-                    data: 'role',
-                    render: function(data) {
-                        let badgeClass = 'bg-secondary';
-
-                        if (data === 'admin') {
-                            badgeClass = 'bg-primary';
-                        } else if (data === 'manager') {
-                            badgeClass = 'bg-info';
-                        } else if (data === 'user') {
-                            badgeClass = 'bg-dark';
-                        }
-
-                        return '<span class="badge ' + badgeClass + '">' + data.charAt(0).toUpperCase() + data.slice(1) + '</span>';
-                    }
+                    data: 'role'
                 },
                 {
-                    data: 'status',
-                    render: function(data) {
-                        if (data === 'active') {
-                            return '<span class="badge bg-success">Aktif</span>';
-                        } else {
-                            return '<span class="badge bg-danger">Tidak Aktif</span>';
-                        }
-                    }
+                    data: 'status'
                 },
                 {
-                    data: 'last_login',
-                    render: function(data) {
-                        return data ? data : '<span class="text-muted small">Belum pernah</span>';
-                    }
+                    data: 'last_login'
                 },
                 {
-                    data: null,
-                    render: function(data, type, row) {
-                        return '<div class="d-flex gap-1">' +
-                            '<button class="btn btn-sm btn-info btn-action btn-edit" data-id="' + row.id + '"><i class="bi bi-pencil"></i></button>' +
-                            '<button class="btn btn-sm btn-danger btn-action btn-delete" data-id="' + row.id + '"><i class="bi bi-trash"></i></button>' +
-                            '</div>';
-                    }
+                    data: 'action',
+                    orderable: false,
+                    searchable: false
                 }
             ],
             order: [

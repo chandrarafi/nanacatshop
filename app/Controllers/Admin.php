@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use CodeIgniter\RESTful\ResourceController;
 use App\Models\UserModel;
+use Hermawan\DataTables\DataTable;
 
 class Admin extends BaseController
 {
@@ -29,35 +30,10 @@ class Admin extends BaseController
 
     public function getUsers()
     {
-        $request = $this->request;
+        $roleFilter = $this->request->getGet('role') ?? '';
+        $statusFilter = $this->request->getGet('status') ?? '';
 
-        // Parameters for DataTables
-        $start = $request->getGet('start') ?? 0;
-        $length = $request->getGet('length') ?? 10;
-        $search = $request->getGet('search')['value'] ?? '';
-        $order = $request->getGet('order') ?? [];
-        $roleFilter = $request->getGet('role') ?? '';
-        $statusFilter = $request->getGet('status') ?? '';
-
-        $orderColumn = $order[0]['column'] ?? 0;
-        $orderDir = $order[0]['dir'] ?? 'asc';
-
-        // Columns for ordering
-        $columns = ['id', 'username', 'email', 'name', 'role', 'status', 'last_login'];
-        $orderBy = $columns[$orderColumn] ?? 'id';
-
-        // Build query
         $builder = $this->userModel->builder();
-
-        // Filtering
-        if (!empty($search)) {
-            $builder->groupStart()
-                ->like('username', $search)
-                ->orLike('email', $search)
-                ->orLike('name', $search)
-                ->orLike('role', $search)
-                ->groupEnd();
-        }
 
         // Role filter
         if (!empty($roleFilter)) {
@@ -69,27 +45,41 @@ class Admin extends BaseController
             $builder->where('status', $statusFilter);
         }
 
-        // Count total records (without filters)
-        $totalRecords = $this->userModel->countAll();
+        return DataTable::of($builder)
+            ->format('role', function ($value) {
+                $badgeClass = 'bg-secondary';
 
-        // Count filtered records
-        $filteredRecords = $builder->countAllResults(false);
+                if ($value === 'admin') {
+                    $badgeClass = 'bg-primary';
+                } else if ($value === 'manager') {
+                    $badgeClass = 'bg-info';
+                } else if ($value === 'user') {
+                    $badgeClass = 'bg-dark';
+                }
 
-        // Get data with limit, offset, order
-        $data = $builder->orderBy($orderBy, $orderDir)
-            ->limit($length, $start)
-            ->get()
-            ->getResultArray();
-
-        // Prepare response for DataTables
-        $response = [
-            'draw' => $request->getGet('draw') ?? 1,
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $filteredRecords,
-            'data' => $data
-        ];
-
-        return $this->response->setJSON($response);
+                return '<span class="badge ' . $badgeClass . '">' . ucfirst($value) . '</span>';
+            })
+            ->format('status', function ($value) {
+                if ($value === 'active') {
+                    return '<span class="badge bg-success">Aktif</span>';
+                } else {
+                    return '<span class="badge bg-danger">Tidak Aktif</span>';
+                }
+            })
+            ->format('last_login', function ($value) {
+                return $value ? $value : '<span class="text-muted small">Belum pernah</span>';
+            })
+            ->add('action', function ($row) {
+                return '<div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-info btn-action btn-edit" data-id="' . $row->id . '">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger btn-action btn-delete" data-id="' . $row->id . '">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>';
+            })
+            ->toJson(true);
     }
 
     protected function handleUserSave($data, $isNew = true)

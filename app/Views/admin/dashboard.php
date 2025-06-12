@@ -626,39 +626,24 @@
                     data: 'name'
                 },
                 {
-                    data: 'role',
-                    render: function(data) {
-                        let badgeClass = 'bg-secondary';
-
-                        if (data === 'admin') {
-                            badgeClass = 'bg-primary';
-                        } else if (data === 'manager') {
-                            badgeClass = 'bg-info';
-                        } else if (data === 'user') {
-                            badgeClass = 'bg-dark';
-                        }
-
-                        return '<span class="badge ' + badgeClass + '">' + data.charAt(0).toUpperCase() + data.slice(1) + '</span>';
-                    }
+                    data: 'role'
                 },
                 {
-                    data: 'status',
-                    render: function(data) {
-                        if (data === 'active') {
-                            return '<span class="badge bg-success">Aktif</span>';
-                        } else {
-                            return '<span class="badge bg-danger">Tidak Aktif</span>';
-                        }
-                    }
+                    data: 'status'
+                },
+                {
+                    data: 'last_login'
                 }
             ],
             order: [
-                [0, 'desc']
+                [4, 'desc']
             ],
+            responsive: true,
             pageLength: 5,
             lengthMenu: [5, 10, 25],
-            dom: 't',
-            responsive: true,
+            dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             language: {
                 emptyTable: "Tidak ada data pengguna",
                 zeroRecords: "Tidak ada data pengguna yang cocok",
@@ -671,7 +656,8 @@
                     last: "Terakhir",
                     next: "Selanjutnya",
                     previous: "Sebelumnya"
-                }
+                },
+                lengthMenu: "Tampilkan _MENU_ data"
             }
         });
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Admin Panel' ?> - CI4 Master</title>
+    <title><?= $title ?? 'Admin Panel' ?> - Nana Cat Shop</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -19,16 +19,16 @@
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --primary-gradient-start: #3498db;
-            --primary-gradient-end: #2c3e50;
+            --primary-color: #e83e8c;
+            --primary-gradient-start: #ff9ad5;
+            --primary-gradient-end: #e83e8c;
             --secondary-color: #7f8c8d;
             --success-color: #27ae60;
             --info-color: #3498db;
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
             --light-color: #f8f9fc;
-            --dark-color: #2c3e50;
+            --dark-color: #e83e8c;
             --border-radius: 0.5rem;
             --card-border-radius: 0.75rem;
             --box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
@@ -36,10 +36,14 @@
 
         body {
             font-family: 'Nunito', sans-serif;
-            background-color: #f5f7fa;
+            background-color: #fdf5f8;
             color: #444;
             transition: all 0.3s ease;
             overflow-x: hidden;
+            background-image: url('https://i.imgur.com/ZdZs4Km.jpeg');
+            background-repeat: repeat;
+            background-size: 200px;
+            background-opacity: 0.1;
         }
 
         /* Scrollbar styling */
@@ -616,48 +620,80 @@
             color: rgba(44, 62, 80, 0.2);
         }
 
-        /* Modals */
-        .modal-content {
-            border: none;
-            border-radius: var(--card-border-radius);
-            overflow: hidden;
-            box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.2);
+        /* Fix for modal backdrop */
+        body.modal-open {
+            overflow: hidden !important;
+            padding-right: 0 !important;
+            width: 100% !important;
         }
 
         .modal-backdrop {
-            background-color: rgba(44, 62, 80, 0.5) !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(44, 62, 80, 0.6) !important;
             backdrop-filter: blur(4px) !important;
             -webkit-backdrop-filter: blur(4px) !important;
+            z-index: 1040 !important;
         }
 
         .modal-backdrop.show {
-            opacity: 0.7 !important;
-        }
-
-        body.modal-open {
-            overflow: hidden;
-            padding-right: 0 !important;
-        }
-
-        .modal-open .modal {
-            overflow-x: hidden;
-            overflow-y: auto;
+            opacity: 0.5 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 1050 !important;
         }
 
         .modal {
-            z-index: 1051 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1060 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            outline: 0 !important;
         }
 
         .modal-dialog {
-            margin: 1.75rem auto;
+            margin: 1.75rem auto !important;
+            max-width: 500px !important;
         }
 
-        .modal-header {
-            padding: 1rem 1.5rem;
+        .modal-lg {
+            max-width: 800px !important;
         }
 
-        .modal-footer {
-            padding: 1rem 1.5rem;
+        .modal-content {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3) !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+        }
+
+        /* Responsive table styling */
+        @media (max-width: 767.98px) {
+
+            .table th,
+            .table td {
+                white-space: nowrap;
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .modal-dialog {
+                margin: 0.75rem auto !important;
+                max-width: calc(100% - 20px) !important;
+            }
+
+            .modal-lg {
+                max-width: calc(100% - 20px) !important;
+            }
         }
 
         /* Custom Select Style */
@@ -1026,17 +1062,21 @@
                 width: 100%;
                 margin-top: 0.25rem;
             }
+
+
         }
     </style>
+    <?= $this->renderSection('styles') ?>
 </head>
 
 <body>
+
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div class="text-center">
-                <h3>CI4 ADMIN</h3>
-                <p class="small">Master Panel</p>
+                <h3>NANA CATSHOP</h3>
+                <p class="small">Admin Panel</p>
             </div>
         </div>
         <hr class="sidebar-divider">
@@ -1047,30 +1087,64 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link <?= $title == 'User Management' ? 'active' : '' ?>" href="<?= site_url('admin/users') ?>">
                     <i class="bi bi-people"></i>
-                    <span>User Management</span>
+                    <span>Manajemen Pengguna</span>
                 </a>
             </li>
 
-            <li class="nav-header mt-3">SETTINGS</li>
+            <li class="nav-item">
+
+                <a class="nav-link <?= $title == 'Manajemen Pelanggan' ? 'active' : '' ?>" href="<?= site_url('admin/pelanggan') ?>">
+                    <i class="bi bi-person-vcard"></i>
+                    <span>Pelanggan</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link <?= $title == 'Manajemen Hewan' ? 'active' : '' ?>" href="<?= site_url('admin/hewan') ?>">
+                    <i class="bi bi-github"></i>
+                    <span>Data Hewan</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= $title == 'Manajemen Kategori' ? 'active' : '' ?>" href="<?= site_url('admin/kategori') ?>">
+                    <i class="bi bi-tags"></i>
+                    <span>Kategori</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= $title == 'Manajemen Barang' ? 'active' : '' ?>" href="<?= site_url('admin/barang') ?>">
+                    <i class="bi bi-box"></i>
+                    <span>Barang</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <?= $title == 'Manajemen Supplier' ? 'active' : '' ?>" href="<?= site_url('admin/supplier') ?>">
+                    <i class="bi bi-truck"></i>
+                    <span>Supplier</span>
+                </a>
+            </li>
+
+            <li class="nav-header mt-3">PENGATURAN</li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="bi bi-gear"></i>
-                    <span>General Settings</span>
+                    <span>Pengaturan Umum</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="bi bi-lock"></i>
-                    <span>Security</span>
+                    <span>Keamanan</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="btn-logout">
                     <i class="bi bi-box-arrow-left"></i>
-                    <span>Logout</span>
+                    <span>Keluar</span>
                 </a>
             </li>
         </ul>
@@ -1090,27 +1164,27 @@
             </button>
             <h1><?= $title ?? 'Dashboard' ?></h1>
             <div class="topbar-divider"></div>
-            <div class="text-secondary small">Welcome, Administrator</div>
+            <div class="text-secondary small">Selamat Datang, Admin</div>
             <div class="topbar-nav">
                 <div class="topbar-item">
-                    <a href="#" class="nav-link" data-bs-toggle="tooltip" title="Notifications">
+                    <a href="#" class="nav-link" data-bs-toggle="tooltip" title="Notifikasi">
                         <i class="bi bi-bell"></i>
                         <span class="notification-badge">5</span>
                     </a>
                 </div>
                 <div class="topbar-item">
-                    <a href="#" class="nav-link" data-bs-toggle="tooltip" title="Messages">
+                    <a href="#" class="nav-link" data-bs-toggle="tooltip" title="Pesan">
                         <i class="bi bi-envelope"></i>
                         <span class="notification-badge">2</span>
                     </a>
                 </div>
                 <div class="topbar-item">
-                    <a href="#" class="nav-link" data-bs-toggle="tooltip" title="Settings">
+                    <a href="#" class="nav-link" data-bs-toggle="tooltip" title="Pengaturan">
                         <i class="bi bi-gear"></i>
                     </a>
                 </div>
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=2c3e50&color=fff" alt="Admin">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=e83e8c&color=fff" alt="Admin">
                     <div class="user-info">
                         <h6>Admin</h6>
                         <small>Administrator</small>
@@ -1253,6 +1327,8 @@
         });
     </script>
 
+
 </body>
+
 
 </html>
