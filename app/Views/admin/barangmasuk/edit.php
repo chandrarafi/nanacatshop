@@ -222,8 +222,8 @@
                                 <tr>
                                     <td><?= $s['kdspl'] ?></td>
                                     <td><?= $s['namaspl'] ?></td>
-                                    <td><?= $s['telpspl'] ?></td>
-                                    <td><?= $s['alamatspl'] ?></td>
+                                    <td><?= $s['nohp'] ?></td>
+                                    <td><?= $s['alamat'] ?></td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-primary btn-pilih-supplier"
                                             data-id="<?= $s['kdspl'] ?>"
@@ -252,6 +252,9 @@
         $('#table-pilih-barang').DataTable();
         $('#table-pilih-supplier').DataTable();
         hitungGrandTotal();
+
+        // Perbaiki penomoran pada load awal
+        renumberRows();
 
         // Pilih supplier button
         $('#btn-pilih-supplier').click(function() {
@@ -293,10 +296,7 @@
             $('#row-empty').hide();
 
             // Add row
-            let rowCount = $('#table-detail tbody tr').length;
-            if ($('#row-empty').is(':visible')) {
-                rowCount = 0;
-            }
+            let rowCount = $('#table-detail tbody tr').not('#row-empty').length;
 
             let newRow = `
                 <tr id="row-${kdbarang}">
@@ -326,6 +326,9 @@
             $('#table-detail tbody').append(newRow);
             hitungGrandTotal();
             $('#modalPilihBarang').modal('hide');
+
+            // Reorder numbers setelah menambah barang
+            renumberRows();
         });
 
         // Hapus barang
@@ -333,20 +336,25 @@
             const kdbarang = $(this).data('id');
             $(`#row-${kdbarang}`).remove();
 
-            // Reorder numbers
+            // Show empty row if no items
+            if ($('#table-detail tbody tr').not('#row-empty').length === 0) {
+                $('#row-empty').show();
+            } else {
+                // Reorder numbers
+                renumberRows();
+            }
+
+            hitungGrandTotal();
+        });
+
+        // Fungsi untuk mengurutkan ulang nomor
+        function renumberRows() {
             let i = 1;
             $('#table-detail tbody tr').not('#row-empty').each(function() {
                 $(this).find('td:first').text(i);
                 i++;
             });
-
-            // Show empty row if no items
-            if ($('#table-detail tbody tr').not('#row-empty').length === 0) {
-                $('#row-empty').show();
-            }
-
-            hitungGrandTotal();
-        });
+        }
 
         // Hitung total saat jumlah atau harga berubah
         $(document).on('change', '.jumlah, .harga', function() {

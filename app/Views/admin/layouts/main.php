@@ -1134,6 +1134,12 @@
                     <span>Barang Masuk</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link <?= $title == 'Manajemen Penjualan' ? 'active' : '' ?>" href="<?= site_url('admin/penjualan') ?>">
+                    <i class="bi bi-cart"></i>
+                    <span>Penjualan</span>
+                </a>
+            </li>
 
             <li class="nav-header mt-3">PENGATURAN</li>
             <li class="nav-item">

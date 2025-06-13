@@ -98,3 +98,20 @@ $routes->group('admin/barangmasuk', ['filter' => 'auth'], function ($routes) {
     $routes->post('deleteBarangMasuk/(:segment)', 'BarangMasukController::deleteBarangMasuk/$1');
     $routes->post('changeStatus/(:segment)', 'BarangMasukController::changeStatus/$1');
 });
+
+// Penjualan Routes
+$routes->group('admin/penjualan', static function ($routes) {
+    $routes->get('/', 'PenjualanController::index');
+    $routes->get('create', 'PenjualanController::create');
+    $routes->get('edit/(:segment)', 'PenjualanController::edit/$1');
+    $routes->get('detail/(:segment)', 'PenjualanController::detail/$1');
+    $routes->get('getPenjualan', 'PenjualanController::getPenjualan');
+    $routes->get('getNextKdPenjualan', 'PenjualanController::getNextKdPenjualan');
+    $routes->get('getPenjualanById/(:segment)', 'PenjualanController::getPenjualanById/$1');
+    $routes->get('getDetailPenjualan/(:segment)', 'PenjualanController::getDetailPenjualan/$1');
+    $routes->get('getBarangById/(:segment)', 'PenjualanController::getBarangById/$1');
+    $routes->post('add', 'PenjualanController::addPenjualan');
+    $routes->post('update/(:segment)', 'PenjualanController::updatePenjualan/$1');
+    $routes->delete('delete/(:segment)', 'PenjualanController::deletePenjualan/$1');
+    $routes->post('changeStatus/(:segment)', 'PenjualanController::changeStatus/$1');
+});
