@@ -51,7 +51,7 @@ class KategoriModel extends Model
     {
         $this->validationRules = [
             'kdkategori' => [
-                'rules' => 'permit_empty|max_length[7]|is_unique[kategori.kdkategori,kdkategori,{kdkategori}]',
+                'rules' => 'permit_empty|max_length[7]',
                 'errors' => [
                     'required' => 'Kode kategori harus diisi',
                     'max_length' => 'Kode kategori maksimal 7 karakter',

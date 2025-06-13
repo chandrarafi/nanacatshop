@@ -81,3 +81,20 @@ $routes->group('admin/supplier', ['filter' => 'auth'], function ($routes) {
     $routes->post('updateSupplier/(:segment)', 'SupplierController::updateSupplier/$1');
     $routes->post('deleteSupplier/(:segment)', 'SupplierController::deleteSupplier/$1');
 });
+
+// Barang Masuk routes
+$routes->group('admin/barangmasuk', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'BarangMasukController::index');
+    $routes->get('create', 'BarangMasukController::create');
+    $routes->get('edit/(:segment)', 'BarangMasukController::edit/$1');
+    $routes->get('detail/(:segment)', 'BarangMasukController::detail/$1');
+    $routes->get('getBarangMasuk', 'BarangMasukController::getBarangMasuk');
+    $routes->get('getNextKdMasuk', 'BarangMasukController::getNextKdMasuk');
+    $routes->get('getBarangMasukById/(:segment)', 'BarangMasukController::getBarangMasukById/$1');
+    $routes->get('getDetailBarangMasuk/(:segment)', 'BarangMasukController::getDetailBarangMasuk/$1');
+    $routes->get('getBarangById/(:segment)', 'BarangMasukController::getBarangById/$1');
+    $routes->post('addBarangMasuk', 'BarangMasukController::addBarangMasuk');
+    $routes->post('updateBarangMasuk/(:segment)', 'BarangMasukController::updateBarangMasuk/$1');
+    $routes->post('deleteBarangMasuk/(:segment)', 'BarangMasukController::deleteBarangMasuk/$1');
+    $routes->post('changeStatus/(:segment)', 'BarangMasukController::changeStatus/$1');
+});
