@@ -1128,6 +1128,13 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link <?= $title == 'Manajemen Barang Masuk' ? 'active' : '' ?>" href="<?= site_url('admin/barangmasuk') ?>">
+                    <i class="bi bi-box"></i>
+                    <span>Barang Masuk</span>
+                </a>
+            </li>
+
             <li class="nav-header mt-3">PENGATURAN</li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
