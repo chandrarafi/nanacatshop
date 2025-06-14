@@ -37,9 +37,9 @@ class CreateHewanTable extends Migration
                     'constraint' => 50,
                 ],
                 'jenis' => [
-                    'type'       => 'ENUM',
-                    'constraint' => ['1', '2'],
-                    'comment'    => '1=Kucing, 2=Anjing',
+                    'type'       => 'VARCHAR',
+                    'constraint' => 50,
+                    'comment'    => 'Jenis hewan: Domestic, Campuran, Persian, Maine Coon, Siamese, British Shorthair, Ragdoll, Bengal, Sphynx, Scottish Fold, Angora, Himalayan',
                 ],
                 'umur' => [
                     'type'       => 'INT',

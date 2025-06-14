@@ -72,9 +72,7 @@ class HewanController extends BaseController
 
         return DataTable::of($builder)
             ->addNumbering('nomor')
-            ->format('jenis', function ($value) {
-                return ($value == '1') ? 'Kucing' : 'Anjing';
-            })
+
             ->format('jenkel', function ($value) {
                 return ($value == 'L') ? 'Laki-laki' : 'Perempuan';
             })

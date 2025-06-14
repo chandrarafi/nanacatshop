@@ -41,7 +41,7 @@ class PenitipanController extends BaseController
         $title = 'Tambah Penitipan';
         $pelanggan = $this->pelangganModel->findAll();
         $hewan = $this->hewanModel->findAll();
-        $fasilitas = $this->fasilitasModel->findAll();
+        $fasilitas = $this->fasilitasModel->getWithKategori();
         $kode_penitipan = $this->penitipanModel->generateKdPenitipan();
         return view('admin/penitipan/create', compact('title', 'pelanggan', 'hewan', 'fasilitas', 'kode_penitipan'));
     }
@@ -91,7 +91,7 @@ class PenitipanController extends BaseController
         }
 
         // Get fasilitas list
-        $fasilitas = $this->fasilitasModel->findAll();
+        $fasilitas = $this->fasilitasModel->getWithKategori();
 
         return view('admin/penitipan/edit', compact(
             'title',

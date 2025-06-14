@@ -144,8 +144,28 @@ $routes->group('admin/penitipan', ['filter' => 'auth'], function ($routes) {
     $routes->get('getFasilitasById/(:segment)', 'PenitipanController::getFasilitasById/$1');
     $routes->post('store', 'PenitipanController::addPenitipan');
     $routes->post('update/(:segment)', 'PenitipanController::update/$1');
-    $routes->delete('delete/(:segment)', 'PenitipanController::deletePenitipan/$1');
+    $routes->post('delete/(:segment)', 'PenitipanController::deletePenitipan/$1');
     $routes->post('changeStatus/(:segment)', 'PenitipanController::changeStatus/$1');
     $routes->post('hitungDenda', 'PenitipanController::hitungDenda');
     $routes->post('penjemputan', 'PenitipanController::penjemputan');
+});
+
+// Perawatan
+$routes->group('admin/perawatan', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'PerawatanController::index');
+    $routes->get('create', 'PerawatanController::create');
+    $routes->get('edit/(:segment)', 'PerawatanController::edit/$1');
+    $routes->get('detail/(:segment)', 'PerawatanController::detail/$1');
+    $routes->get('cetak/(:segment)', 'PerawatanController::cetak/$1');
+    $routes->post('store', 'PerawatanController::store');
+    $routes->post('update/(:segment)', 'PerawatanController::update/$1');
+    $routes->post('updateStatus', 'PerawatanController::updateStatus');
+    $routes->delete('delete/(:segment)', 'PerawatanController::deletePerawatan/$1');
+
+    // API endpoints
+    $routes->get('getPerawatan', 'PerawatanController::getPerawatan');
+    $routes->get('getNextKdPerawatan', 'PerawatanController::getNextKdPerawatan');
+    $routes->get('getPerawatanById/(:segment)', 'PerawatanController::getPerawatanById/$1');
+    $routes->get('getDetailPerawatan/(:segment)', 'PerawatanController::getDetailPerawatan/$1');
+    $routes->get('getHewanByPelanggan/(:segment)', 'PerawatanController::getHewanByPelanggan/$1');
 });
