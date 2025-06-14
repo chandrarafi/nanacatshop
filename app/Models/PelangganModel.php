@@ -12,7 +12,7 @@ class PelangganModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idpelanggan', 'namapelanggan', 'nohp', 'alamat'];
+    protected $allowedFields    = ['idpelanggan', 'nama', 'jenkel', 'nohp', 'alamat'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -56,7 +56,7 @@ class PelangganModel extends Model
                     'max_length' => 'ID pelanggan maksimal 30 karakter'
                 ]
             ],
-            'namapelanggan' => [
+            'nama' => [
                 'rules' => 'required|max_length[100]',
                 'errors' => [
                     'required' => 'Nama pelanggan harus diisi',

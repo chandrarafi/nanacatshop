@@ -63,7 +63,7 @@ class HewanModel extends Model
                 ]
             ],
             'jenis' => [
-                'rules' => 'required|in_list[1,2]',
+                'rules' => 'required|',
                 'errors' => [
                     'required' => 'Jenis hewan harus dipilih',
                     'in_list' => 'Jenis hewan tidak valid'

@@ -110,7 +110,6 @@ class CreatePerawatanTable extends Migration
         ]);
         $this->forge->addKey('iddetail', true);
         $this->forge->addForeignKey('detailkdperawatan', 'perawatan', 'kdperawatan', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('detailidhewan', 'hewan', 'idhewan', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('detailkdfasilitas', 'fasilitas', 'kdfasilitas', 'CASCADE', 'CASCADE');
         $this->forge->createTable('detailperawatan');
     }

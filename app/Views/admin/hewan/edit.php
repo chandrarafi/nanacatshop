@@ -73,6 +73,10 @@
                                 <option value="British Shorthair" <?= ($hewan['jenis'] == 'British Shorthair') ? 'selected' : '' ?>>British Shorthair</option>
                                 <option value="Ragdoll" <?= ($hewan['jenis'] == 'Ragdoll') ? 'selected' : '' ?>>Ragdoll</option>
                                 <option value="Bengal" <?= ($hewan['jenis'] == 'Bengal') ? 'selected' : '' ?>>Bengal</option>
+                                <option value="Himalayan" <?= ($hewan['jenis'] == 'Himalayan') ? 'selected' : '' ?>>Himalayan</option>
+                                <option value="Sphynx" <?= ($hewan['jenis'] == 'Sphynx') ? 'selected' : '' ?>>Sphynx</option>
+                                <option value="Scottish Fold" <?= ($hewan['jenis'] == 'Scottish Fold') ? 'selected' : '' ?>>Scottish Fold</option>
+                                <option value="Angora" <?= ($hewan['jenis'] == 'Angora') ? 'selected' : '' ?>>Angora</option>
                             </select>
                             <div class="invalid-feedback"></div>
                         </div>
