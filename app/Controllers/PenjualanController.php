@@ -62,10 +62,11 @@ class PenjualanController extends BaseController
         $tanggalMulai = $this->request->getGet('tanggal_mulai') ?? '';
         $tanggalAkhir = $this->request->getGet('tanggal_akhir') ?? '';
 
-        $builder = $this->penjualanModel->builder();
+        $builder = $this->db->table('penjualan');
         $builder->select('penjualan.kdpenjualan, penjualan.tglpenjualan, penjualan.grandtotal, penjualan.status, penjualan.idpelanggan');
         $builder->select('IFNULL(pelanggan.nama, "Pelanggan Umum") as nama', false);
         $builder->join('pelanggan', 'pelanggan.idpelanggan = penjualan.idpelanggan', 'left');
+        $builder->orderBy('penjualan.kdpenjualan', 'DESC');
 
         if (!empty($pelangganFilter)) {
             $builder->where('penjualan.idpelanggan', $pelangganFilter);
@@ -76,10 +77,16 @@ class PenjualanController extends BaseController
             $builder->where('penjualan.tglpenjualan <=', $tanggalAkhir);
         }
 
-        return DataTable::of($builder)
-            ->format('tglpenjualan', function ($value) {
-                return date('d/m/Y', strtotime($value));
-            })
+        // Gunakan DataTable dengan konfigurasi pencarian manual
+        $dt = new DataTable($builder);
+
+        // Nonaktifkan pencarian global otomatis
+        $dt->setSearchableColumns(['penjualan.kdpenjualan']);
+
+        // Format data
+        $dt->format('tglpenjualan', function ($value) {
+            return date('d/m/Y', strtotime($value));
+        })
             ->format('grandtotal', function ($value) {
                 return 'Rp ' . number_format($value, 0, ',', '.');
             })
@@ -89,21 +96,27 @@ class PenjualanController extends BaseController
                 } else {
                     return '<span class="badge bg-warning">Pending</span>';
                 }
-            })
-            ->add('action', function ($row) {
-                return '<div class="d-flex gap-1">
-                    <a href="' . site_url('admin/penjualan/edit/' . $row->kdpenjualan) . '" class="btn btn-sm btn-info">
-                        <i class="bi bi-pencil-square"></i>
-                    </a>
-                    <button class="btn btn-sm btn-danger btn-delete" data-id="' . $row->kdpenjualan . '">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                    <a href="' . site_url('admin/penjualan/detail/' . $row->kdpenjualan) . '" class="btn btn-sm btn-primary">
-                        <i class="bi bi-eye"></i>
-                    </a>
-                </div>';
-            })
-            ->toJson(true);
+            });
+
+        // Tambahkan kolom aksi
+        $dt->add('action', function ($row) {
+            return '<div class="d-flex gap-1">
+                <a href="' . site_url('admin/penjualan/edit/' . $row->kdpenjualan) . '" class="btn btn-sm btn-info">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+                <button class="btn btn-sm btn-danger btn-delete" data-id="' . $row->kdpenjualan . '">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <a href="' . site_url('admin/penjualan/detail/' . $row->kdpenjualan) . '" class="btn btn-sm btn-primary">
+                    <i class="bi bi-eye"></i>
+                </a>
+                <a href="' . site_url('admin/penjualan/cetak/' . $row->kdpenjualan) . '" class="btn btn-sm btn-success" target="_blank">
+                    <i class="bi bi-printer"></i>
+                </a>
+            </div>';
+        });
+
+        return $dt->toJson(true);
     }
 
     public function getNextKdPenjualan()
@@ -225,7 +238,10 @@ class PenjualanController extends BaseController
             return $this->response->setJSON([
                 'status' => 'success',
                 'message' => 'Data penjualan berhasil ditambahkan',
-                'data' => ['kdpenjualan' => $data['kdpenjualan']]
+                'data' => [
+                    'kdpenjualan' => $data['kdpenjualan'],
+                    'print_url' => site_url('admin/penjualan/cetak/' . $data['kdpenjualan'])
+                ]
             ]);
         } catch (\Exception $e) {
             $this->db->transRollback();
@@ -477,5 +493,19 @@ class PenjualanController extends BaseController
                 'message' => 'Gagal mengubah status penjualan: ' . $e->getMessage()
             ]);
         }
+    }
+
+    public function cetak($id = null)
+    {
+        $penjualan = $this->penjualanModel->getWithPelanggan($id);
+
+        if (!$penjualan) {
+            return redirect()->to('admin/penjualan')->with('error', 'Data penjualan tidak ditemukan');
+        }
+
+        $detailPenjualan = $this->detailPenjualanModel->getDetailWithBarang($id);
+
+        // Mencegah header dan footer dari view layout utama ditampilkan
+        return view('admin/penjualan/cetak', compact('penjualan', 'detailPenjualan'));
     }
 }

@@ -17,6 +17,9 @@
                 <a href="<?= site_url('admin/penjualan') ?>" class="btn btn-sm btn-secondary">
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>
+                <a href="<?= site_url('admin/penjualan/cetak/' . $penjualan['kdpenjualan']) ?>" class="btn btn-sm btn-primary" target="_blank">
+                    <i class="fas fa-print"></i> Cetak Faktur
+                </a>
                 <a href="<?= site_url('admin/penjualan/edit/' . $penjualan['kdpenjualan']) ?>" class="btn btn-sm btn-info">
                     <i class="fas fa-edit"></i> Edit
                 </a>

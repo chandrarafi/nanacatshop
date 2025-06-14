@@ -433,6 +433,11 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
+                        // Buka halaman cetak faktur di tab baru
+                        if (response.data && response.data.print_url) {
+                            window.open(response.data.print_url, '_blank');
+                        }
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Sukses',

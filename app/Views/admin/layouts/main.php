@@ -83,6 +83,8 @@
             position: fixed;
             width: 280px;
             transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
         }
 
         .sidebar-brand {
@@ -91,6 +93,7 @@
             align-items: center;
             justify-content: center;
             padding: 2rem 1.5rem;
+            flex-shrink: 0;
         }
 
         .sidebar-brand h3 {
@@ -110,6 +113,12 @@
         .sidebar-divider {
             border-top: 1px solid rgba(255, 255, 255, 0.15);
             margin: 0 1.5rem;
+        }
+
+        .sidebar-menu {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 2rem;
         }
 
         .nav-header {
@@ -181,6 +190,54 @@
             width: 1.5rem;
             text-align: center;
             transition: all 0.3s;
+        }
+
+        /* Menu group */
+        .menu-group {
+            margin-bottom: 1rem;
+        }
+
+        .menu-group-title {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-group-title i {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+            width: 1.5rem;
+            text-align: center;
+        }
+
+        .menu-group-title .toggle-icon {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .menu-group-title:hover {
+            color: white;
+        }
+
+        .menu-group-items {
+            padding-left: 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .menu-group.open .menu-group-items {
+            max-height: 500px;
+        }
+
+        .menu-group.open .toggle-icon {
+            transform: rotate(180deg);
         }
 
         /* Main content */
@@ -725,6 +782,8 @@
             .sidebar .sidebar-brand h3,
             .sidebar .sidebar-brand p,
             .sidebar .nav-header,
+            .sidebar .menu-group-title span,
+            .sidebar .menu-group-title .toggle-icon,
             .sidebar .nav-link span {
                 display: none;
             }
@@ -742,6 +801,10 @@
 
             .nav-link:hover {
                 transform: none;
+            }
+
+            .menu-group-items {
+                padding-left: 0;
             }
 
             .main-content {
@@ -782,17 +845,25 @@
             .sidebar.show {
                 width: 240px;
                 transform: translateX(0);
+                overflow-y: auto;
             }
 
-            .sidebar.show+.main-content {
-                margin-left: 0;
+            .sidebar.show .sidebar-menu {
+                overflow-y: auto;
+                max-height: calc(100vh - 8rem);
             }
 
             .sidebar.show .sidebar-brand h3,
             .sidebar.show .sidebar-brand p,
             .sidebar.show .nav-header,
+            .sidebar.show .menu-group-title span,
+            .sidebar.show .menu-group-title .toggle-icon,
             .sidebar.show .nav-link span {
                 display: block;
+            }
+
+            .sidebar.show .menu-group-title {
+                display: flex;
             }
 
             .sidebar.show .nav-link {
@@ -802,6 +873,10 @@
 
             .sidebar.show .nav-link i {
                 margin-right: 0.8rem;
+            }
+
+            .sidebar.show .menu-group-items {
+                padding-left: 1rem;
             }
 
             .sidebar-toggle {
@@ -1080,87 +1155,138 @@
             </div>
         </div>
         <hr class="sidebar-divider">
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'Dashboard' ? 'active' : '' ?>" href="<?= site_url('admin') ?>">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
 
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'User Management' ? 'active' : '' ?>" href="<?= site_url('admin/users') ?>">
-                    <i class="bi bi-people"></i>
-                    <span>Manajemen Pengguna</span>
-                </a>
-            </li>
+        <div class="sidebar-menu">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link <?= str_contains(current_url(), 'admin') && !str_contains(current_url(), 'admin/') ? 'active' : '' ?>" href="<?= site_url('admin') ?>">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
 
-            <li class="nav-item">
+                <li class="nav-item">
+                    <a class="nav-link <?= str_contains(current_url(), 'admin/users') ? 'active' : '' ?>" href="<?= site_url('admin/users') ?>">
+                        <i class="bi bi-people"></i>
+                        <span>Manajemen Pengguna</span>
+                    </a>
+                </li>
 
-                <a class="nav-link <?= $title == 'Manajemen Pelanggan' ? 'active' : '' ?>" href="<?= site_url('admin/pelanggan') ?>">
-                    <i class="bi bi-person-vcard"></i>
-                    <span>Pelanggan</span>
-                </a>
-            </li>
+                <!-- Kelompok Data Master -->
+                <div class="menu-group">
+                    <div class="menu-group-title">
+                        <i class="bi bi-database"></i>
+                        <span>Data Master</span>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="menu-group-items">
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/pelanggan') ? 'active' : '' ?>" href="<?= site_url('admin/pelanggan') ?>">
+                                <i class="bi bi-person-vcard"></i>
+                                <span>Pelanggan</span>
+                            </a>
+                        </li>
 
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'Manajemen Hewan' ? 'active' : '' ?>" href="<?= site_url('admin/hewan') ?>">
-                    <i class="bi bi-github"></i>
-                    <span>Data Hewan</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'Manajemen Kategori' ? 'active' : '' ?>" href="<?= site_url('admin/kategori') ?>">
-                    <i class="bi bi-tags"></i>
-                    <span>Kategori</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'Manajemen Barang' ? 'active' : '' ?>" href="<?= site_url('admin/barang') ?>">
-                    <i class="bi bi-box"></i>
-                    <span>Barang</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'Manajemen Supplier' ? 'active' : '' ?>" href="<?= site_url('admin/supplier') ?>">
-                    <i class="bi bi-truck"></i>
-                    <span>Supplier</span>
-                </a>
-            </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/hewan') ? 'active' : '' ?>" href="<?= site_url('admin/hewan') ?>">
+                                <i class="bi bi-github"></i>
+                                <span>Data Hewan</span>
+                            </a>
+                        </li>
 
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'Manajemen Barang Masuk' ? 'active' : '' ?>" href="<?= site_url('admin/barangmasuk') ?>">
-                    <i class="bi bi-box"></i>
-                    <span>Barang Masuk</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= $title == 'Manajemen Penjualan' ? 'active' : '' ?>" href="<?= site_url('admin/penjualan') ?>">
-                    <i class="bi bi-cart"></i>
-                    <span>Penjualan</span>
-                </a>
-            </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/kategori') ? 'active' : '' ?>" href="<?= site_url('admin/kategori') ?>">
+                                <i class="bi bi-tags"></i>
+                                <span>Kategori</span>
+                            </a>
+                        </li>
 
-            <li class="nav-header mt-3">PENGATURAN</li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-gear"></i>
-                    <span>Pengaturan Umum</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="bi bi-lock"></i>
-                    <span>Keamanan</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="btn-logout">
-                    <i class="bi bi-box-arrow-left"></i>
-                    <span>Keluar</span>
-                </a>
-            </li>
-        </ul>
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/barang') && !str_contains(current_url(), 'admin/barangmasuk') ? 'active' : '' ?>" href="<?= site_url('admin/barang') ?>">
+                                <i class="bi bi-box"></i>
+                                <span>Barang</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/fasilitas') ? 'active' : '' ?>" href="<?= site_url('admin/fasilitas') ?>">
+                                <i class="bi bi-building-check"></i>
+                                <span>Fasilitas</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/supplier') ? 'active' : '' ?>" href="<?= site_url('admin/supplier') ?>">
+                                <i class="bi bi-truck"></i>
+                                <span>Supplier</span>
+                            </a>
+                        </li>
+                    </div>
+                </div>
+
+                <!-- Kelompok Transaksi -->
+                <div class="menu-group">
+                    <div class="menu-group-title">
+                        <i class="bi bi-cash-coin"></i>
+                        <span>Transaksi</span>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="menu-group-items">
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/barangmasuk') ? 'active' : '' ?>" href="<?= site_url('admin/barangmasuk') ?>">
+                                <i class="bi bi-box-arrow-in-down"></i>
+                                <span>Barang Masuk</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/penjualan') ? 'active' : '' ?>" href="<?= site_url('admin/penjualan') ?>">
+                                <i class="bi bi-cart"></i>
+                                <span>Penjualan</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/penitipan') ? 'active' : '' ?>" href="<?= site_url('admin/penitipan') ?>">
+                                <i class="bi bi-house-heart"></i>
+                                <span>Penitipan</span>
+                            </a>
+                        </li>
+                    </div>
+                </div>
+
+                <!-- Kelompok Pengaturan -->
+                <div class="menu-group">
+                    <div class="menu-group-title">
+                        <i class="bi bi-gear"></i>
+                        <span>Pengaturan</span>
+                        <i class="bi bi-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="menu-group-items">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-sliders"></i>
+                                <span>Pengaturan Umum</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="bi bi-lock"></i>
+                                <span>Keamanan</span>
+                            </a>
+                        </li>
+                    </div>
+                </div>
+
+                <li class="nav-item">
+                    <a class="nav-link" id="btn-logout">
+                        <i class="bi bi-box-arrow-left"></i>
+                        <span>Keluar</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <!-- Mobile Toggle Button -->
@@ -1235,6 +1361,24 @@
 
         // Mobile sidebar toggle
         $(document).ready(function() {
+            // Auto-open menu groups that contain active links on page load
+            $('.menu-group').each(function() {
+                if ($(this).find('.nav-link.active').length > 0) {
+                    $(this).addClass('open');
+                }
+            });
+
+            // Toggle menu groups
+            $('.menu-group-title').on('click', function() {
+                const menuGroup = $(this).closest('.menu-group');
+
+                // Close other menu groups
+                $('.menu-group').not(menuGroup).removeClass('open');
+
+                // Toggle current menu group
+                menuGroup.toggleClass('open');
+            });
+
             $('#sidebarToggle, #navbarToggler').on('click', function() {
                 $('#sidebar').toggleClass('show');
 
