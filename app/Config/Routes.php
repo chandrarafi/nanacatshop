@@ -105,6 +105,7 @@ $routes->group('admin/penjualan', static function ($routes) {
     $routes->get('create', 'PenjualanController::create');
     $routes->get('edit/(:segment)', 'PenjualanController::edit/$1');
     $routes->get('detail/(:segment)', 'PenjualanController::detail/$1');
+    $routes->get('cetak/(:segment)', 'PenjualanController::cetak/$1');
     $routes->get('getPenjualan', 'PenjualanController::getPenjualan');
     $routes->get('getNextKdPenjualan', 'PenjualanController::getNextKdPenjualan');
     $routes->get('getPenjualanById/(:segment)', 'PenjualanController::getPenjualanById/$1');
@@ -114,4 +115,37 @@ $routes->group('admin/penjualan', static function ($routes) {
     $routes->post('update/(:segment)', 'PenjualanController::updatePenjualan/$1');
     $routes->delete('delete/(:segment)', 'PenjualanController::deletePenjualan/$1');
     $routes->post('changeStatus/(:segment)', 'PenjualanController::changeStatus/$1');
+});
+
+// Fasilitas Routes
+$routes->group('admin/fasilitas', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'FasilitasController::index');
+    $routes->get('getFasilitas', 'FasilitasController::getFasilitas');
+    $routes->get('getNextKdFasilitas', 'FasilitasController::getNextKdFasilitas');
+    $routes->get('getFasilitasById/(:segment)', 'FasilitasController::getFasilitasById/$1');
+    $routes->post('addFasilitas', 'FasilitasController::addFasilitas');
+    $routes->post('updateFasilitas/(:segment)', 'FasilitasController::updateFasilitas/$1');
+    $routes->post('deleteFasilitas/(:segment)', 'FasilitasController::deleteFasilitas/$1');
+});
+
+// Penitipan Routes
+$routes->group('admin/penitipan', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'PenitipanController::index');
+    $routes->get('create', 'PenitipanController::create');
+    $routes->get('edit/(:segment)', 'PenitipanController::edit/$1');
+    $routes->get('detail/(:segment)', 'PenitipanController::detail/$1');
+    $routes->get('cetak/(:segment)', 'PenitipanController::cetak/$1');
+    $routes->get('getPenitipan', 'PenitipanController::getPenitipan');
+    $routes->get('getNextKdPenitipan', 'PenitipanController::getNextKdPenitipan');
+    $routes->get('getPenitipanById/(:segment)', 'PenitipanController::getPenitipanById/$1');
+    $routes->get('getDetailPenitipan/(:segment)', 'PenitipanController::getDetailPenitipan/$1');
+    $routes->get('getHewanById/(:segment)', 'PenitipanController::getHewanById/$1');
+    $routes->get('getHewanByPelanggan/(:segment)', 'PenitipanController::getHewanByPelanggan/$1');
+    $routes->get('getFasilitasById/(:segment)', 'PenitipanController::getFasilitasById/$1');
+    $routes->post('store', 'PenitipanController::addPenitipan');
+    $routes->post('update/(:segment)', 'PenitipanController::update/$1');
+    $routes->delete('delete/(:segment)', 'PenitipanController::deletePenitipan/$1');
+    $routes->post('changeStatus/(:segment)', 'PenitipanController::changeStatus/$1');
+    $routes->post('hitungDenda', 'PenitipanController::hitungDenda');
+    $routes->post('penjemputan', 'PenitipanController::penjemputan');
 });
