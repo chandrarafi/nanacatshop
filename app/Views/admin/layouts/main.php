@@ -40,7 +40,6 @@
             color: #444;
             transition: all 0.3s ease;
             overflow-x: hidden;
-            background-image: url('https://i.imgur.com/ZdZs4Km.jpeg');
             background-repeat: repeat;
             background-size: 200px;
             background-opacity: 0.1;
@@ -1250,6 +1249,13 @@
                             <a class="nav-link <?= str_contains(current_url(), 'admin/penitipan') ? 'active' : '' ?>" href="<?= site_url('admin/penitipan') ?>">
                                 <i class="bi bi-house-heart"></i>
                                 <span>Penitipan</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link <?= str_contains(current_url(), 'admin/perawatan') ? 'active' : '' ?>" href="<?= site_url('admin/perawatan') ?>">
+                                <i class="bi bi-scissors"></i>
+                                <span>Perawatan</span>
                             </a>
                         </li>
                     </div>

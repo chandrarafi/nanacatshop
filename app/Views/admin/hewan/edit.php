@@ -65,8 +65,14 @@
                             <label for="jenis" class="form-label">Jenis Hewan <span class="text-danger">*</span></label>
                             <select class="form-select" id="jenis" name="jenis">
                                 <option value="">Pilih Jenis Hewan</option>
-                                <option value="1" <?= ($hewan['jenis'] == '1') ? 'selected' : '' ?>>Kucing</option>
-                                <option value="2" <?= ($hewan['jenis'] == '2') ? 'selected' : '' ?>>Anjing</option>
+                                <option value="Domestic" <?= ($hewan['jenis'] == 'Domestic') ? 'selected' : '' ?>>Domestic</option>
+                                <option value="Campuran" <?= ($hewan['jenis'] == 'Campuran') ? 'selected' : '' ?>>Campuran</option>
+                                <option value="Persian" <?= ($hewan['jenis'] == 'Persian') ? 'selected' : '' ?>>Persian</option>
+                                <option value="Maine Coon" <?= ($hewan['jenis'] == 'Maine Coon') ? 'selected' : '' ?>>Maine Coon</option>
+                                <option value="Siamese" <?= ($hewan['jenis'] == 'Siamese') ? 'selected' : '' ?>>Siamese</option>
+                                <option value="British Shorthair" <?= ($hewan['jenis'] == 'British Shorthair') ? 'selected' : '' ?>>British Shorthair</option>
+                                <option value="Ragdoll" <?= ($hewan['jenis'] == 'Ragdoll') ? 'selected' : '' ?>>Ragdoll</option>
+                                <option value="Bengal" <?= ($hewan['jenis'] == 'Bengal') ? 'selected' : '' ?>>Bengal</option>
                             </select>
                             <div class="invalid-feedback"></div>
                         </div>

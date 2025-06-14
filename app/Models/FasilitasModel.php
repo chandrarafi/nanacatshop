@@ -115,4 +115,17 @@ class FasilitasModel extends Model
 
         return $prefix . $date . $newSequence;
     }
+
+    public function getWithKategori()
+    {
+        $builder = $this->db->table('fasilitas');
+        $builder->select('*')->whereIn('kategori', ['kandang', 'makanan']);
+        return $builder->get()->getResultArray();
+    }
+    public function getWithKategoriPerawatan()
+    {
+        $builder = $this->db->table('fasilitas');
+        $builder->select('*')->whereNotIn('kategori', ['kandang', 'makanan']);
+        return $builder->get()->getResultArray();
+    }
 }

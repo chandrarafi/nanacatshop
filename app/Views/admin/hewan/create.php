@@ -55,8 +55,18 @@
                             <label for="jenis" class="form-label">Jenis Hewan <span class="text-danger">*</span></label>
                             <select class="form-select" id="jenis" name="jenis">
                                 <option value="">Pilih Jenis Hewan</option>
-                                <option value="1">Kucing</option>
-                                <option value="2">Anjing</option>
+                                <option value="Domestic">Domestic</option>
+                                <option value="Campuran">Campuran</option>
+                                <option value="Persian">Persian</option>
+                                <option value="Maine Coon">Maine Coon</option>
+                                <option value="Siamese">Siamese</option>
+                                <option value="British Shorthair">British Shorthair</option>
+                                <option value="Ragdoll">Ragdoll</option>
+                                <option value="Bengal">Bengal</option>
+                                <option value="Sphynx">Sphynx</option>
+                                <option value="Scottish Fold">Scottish Fold</option>
+                                <option value="Angora">Angora</option>
+                                <option value="Himalayan">Himalayan</option>
                             </select>
                             <div class="invalid-feedback"></div>
                         </div>
