@@ -26,6 +26,32 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('getRoles', 'Admin::getRoles');
 });
 
+// Laporan Routes
+$routes->group('admin/laporan', ['filter' => 'auth'], function ($routes) {
+    $routes->get('pelanggan', 'LaporanController::pelanggan');
+    $routes->get('pelanggan/data', 'LaporanController::getPelangganData');
+    $routes->get('pelanggan/cetak', 'LaporanController::cetakPelangganPdf');
+
+    $routes->get('hewan', 'LaporanController::hewan');
+    $routes->get('hewan/data', 'LaporanController::getHewanData');
+    $routes->get('hewan/pelanggan', 'LaporanController::getPelangganList');
+    $routes->get('hewan/cetak', 'LaporanController::cetakHewanPdf');
+
+    $routes->get('barang', 'LaporanController::barang');
+    $routes->get('barang/data', 'LaporanController::getBarangData');
+    $routes->get('barang/kategori', 'LaporanController::getKategoriList');
+    $routes->get('barang/cetak', 'LaporanController::cetakBarangPdf');
+
+    $routes->get('fasilitas', 'LaporanController::fasilitas');
+    $routes->get('fasilitas/data', 'LaporanController::getFasilitasData');
+    $routes->get('fasilitas/kategori', 'LaporanController::getKategoriFasilitas');
+    $routes->get('fasilitas/cetak', 'LaporanController::cetakFasilitasPdf');
+
+    $routes->get('supplier', 'LaporanController::supplier');
+    $routes->get('supplier/data', 'LaporanController::getSupplierData');
+    $routes->get('supplier/cetak', 'LaporanController::cetakSupplierPdf');
+});
+
 // Pelanggan routes
 $routes->group('admin/pelanggan', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'PelangganController::index');
