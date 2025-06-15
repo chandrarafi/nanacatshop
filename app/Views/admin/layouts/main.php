@@ -16,6 +16,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Animate CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Lottie Files -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <!-- Custom CSS -->
     <style>
         :root {
@@ -43,6 +45,39 @@
             background-repeat: repeat;
             background-size: 200px;
             background-opacity: 0.1;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #loading-overlay.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loading-text {
+            margin-top: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        #loading-overlay lottie-player {
+            width: 200px;
+            height: 200px;
         }
 
         /* Scrollbar styling */
@@ -1144,6 +1179,11 @@
 </head>
 
 <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <lottie-player src="<?= base_url('assets/animasi/cat.json') ?>" background="transparent" speed="1" loop autoplay></lottie-player>
+        <div id="loading-text">Memuat...</div>
+    </div>
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
@@ -1357,6 +1397,32 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <script>
+        // Loading overlay control
+        $(window).on('load', function() {
+            setTimeout(function() {
+                $('#loading-overlay').addClass('hide');
+            }, 800); // Menampilkan loading selama 800ms
+        });
+
+        // Fungsi untuk menampilkan loading saat navigasi atau aksi
+        function showLoading() {
+            $('#loading-overlay').removeClass('hide');
+        }
+
+        function hideLoading() {
+            $('#loading-overlay').addClass('hide');
+        }
+
+        // Menampilkan loading saat klik link navigasi
+        $(document).on('click', 'a:not([href^="#"]):not([target="_blank"]):not([href^="javascript:void(0)"]):not([href^="tel:"]):not([href^="mailto:"])', function() {
+            showLoading();
+        });
+
+        // Menampilkan loading saat submit form
+        $(document).on('submit', 'form', function() {
+            showLoading();
+        });
+
         // Initialize tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
