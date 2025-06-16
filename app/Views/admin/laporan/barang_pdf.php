@@ -155,7 +155,7 @@
                     <?php endif; ?>
                 </td>
                 <td class="text-cell">
-                    <h1>NANA CAT SHOP</h1>
+                    <h1>NANA CATSHOP</h1>
                     <p>Jl. Bandar Olo no.42, Padang Barat, Kota Padang</p>
                     <p>Telp: (021) 1234567 | Email: info@nanacatshop.com</p>
                 </td>

@@ -137,7 +137,7 @@
                      </li>
 
                      <li class="nav-item">
-                         <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/barang') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/barang') ?>">
+                         <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/barang') && !str_contains(current_url(), 'admin/laporan/barang-masuk') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/barang') ?>">
                              <i class="bi bi-box-seam"></i>
                              <span>Laporan Data Barang</span>
                          </a>
@@ -154,6 +154,31 @@
                          <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/supplier') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/supplier') ?>">
                              <i class="bi bi-truck"></i>
                              <span>Laporan Supplier</span>
+                         </a>
+                     </li>
+
+                     <li class="nav-item">
+                         <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/barang-masuk') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/barang-masuk') ?>">
+                             <i class="bi bi-box-arrow-in-down"></i>
+                             <span>Laporan Barang Masuk</span>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/penjualan') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/penjualan') ?>">
+                             <i class="bi bi-cart"></i>
+                             <span>Laporan Penjualan</span>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/penitipan') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/penitipan') ?>">
+                             <i class="bi bi-house-heart"></i>
+                             <span>Laporan Penitipan</span>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/perawatan') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/perawatan') ?>">
+                             <i class="bi bi-scissors"></i>
+                             <span>Laporan Perawatan</span>
                          </a>
                      </li>
                  </div>

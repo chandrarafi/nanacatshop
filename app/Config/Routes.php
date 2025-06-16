@@ -5,7 +5,7 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
+$routes->get('/', 'LandingPage::index');
 
 // Auth Routes
 $routes->get('auth', 'Auth::index');
@@ -50,6 +50,28 @@ $routes->group('admin/laporan', ['filter' => 'auth'], function ($routes) {
     $routes->get('supplier', 'LaporanController::supplier');
     $routes->get('supplier/data', 'LaporanController::getSupplierData');
     $routes->get('supplier/cetak', 'LaporanController::cetakSupplierPdf');
+
+    $routes->get('barang-masuk', 'LaporanController::barangMasuk');
+    $routes->get('barang-masuk/data', 'LaporanController::getBarangMasukData');
+    $routes->get('barang-masuk/supplier', 'LaporanController::getSupplierList');
+    $routes->get('barang-masuk/cetak', 'LaporanController::cetakBarangMasukPdf');
+    $routes->get('barang-masuk/cetak/(:segment)', 'LaporanController::cetakDetailBarangMasuk/$1');
+
+    $routes->get('penjualan', 'LaporanController::penjualan');
+    $routes->get('penjualan-data', 'LaporanController::getPenjualanData');
+    $routes->get('pelanggan-list', 'LaporanController::getPelangganList');
+    $routes->get('penjualan/cetak', 'LaporanController::cetakPenjualanPdf');
+    $routes->get('penjualan/cetak/(:segment)', 'LaporanController::cetakDetailPenjualan/$1');
+
+    $routes->get('penitipan', 'LaporanController::penitipan');
+    $routes->get('penitipan-data', 'LaporanController::getPenitipanData');
+    $routes->get('penitipan/cetak', 'LaporanController::cetakPenitipanPdf');
+    $routes->get('penitipan/cetak/(:segment)', 'LaporanController::cetakDetailPenitipan/$1');
+
+    $routes->get('perawatan', 'LaporanController::perawatan');
+    $routes->get('perawatan-data', 'LaporanController::getPerawatanData');
+    $routes->get('perawatan/cetak', 'LaporanController::cetakPerawatanPdf');
+    $routes->get('perawatan/cetak/(:segment)', 'LaporanController::cetakDetailPerawatan/$1');
 });
 
 // Pelanggan routes
