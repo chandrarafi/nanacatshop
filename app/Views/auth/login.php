@@ -1,225 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Admin Panel</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
+    <title>Login - Nana Cat Shop</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AOS Animation Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#F564A9', // Pink (warna utama)
+                        secondary: '#FAA4BD', // Pink muda
+                        accent: '#533B4D', // Ungu tua (aksen)
+                        light: '#FAE3C6', // Cream
+                    },
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary-color: #4e73df;
-            --secondary-color: #224abe;
-            --accent-color: #f8f9fc;
-        }
-
         body {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #FFF5F9;
         }
 
-        .login-container {
-            max-width: 420px;
-            margin: 0 auto;
-            padding: 20px;
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
         }
 
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
         }
 
-        .login-header {
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            padding: 25px 20px;
-            text-align: center;
-            border-radius: 15px 15px 0 0;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
-        .login-header h4 {
-            color: white;
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .login-body {
-            padding: 30px;
-        }
-
-        .form-control {
-            border-radius: 8px;
-            padding: 12px;
-            border: 1px solid #e1e1e1;
-            font-size: 0.95rem;
-        }
-
-        .form-control:focus {
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-            border-color: var(--primary-color);
-        }
-
-        .input-group-text {
-            border-radius: 8px 0 0 8px;
-            border: 1px solid #e1e1e1;
-            background-color: #f8f9fa;
-        }
-
-        .btn-login {
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
-        }
-
-        .form-check-input:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .alert {
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .brand-logo {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
-        }
-
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            border-radius: 15px;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: #495057;
-        }
-
-        .remember-me {
-            color: #6c757d;
-        }
-
-        .input-group {
-            margin-bottom: 5px;
-        }
-
-        .invalid-feedback {
-            font-size: 0.85rem;
-            margin-left: 5px;
+        .animate-fadeIn {
+            animation: fadeIn 1s ease-in-out;
         }
     </style>
 </head>
 
-<body>
-    <div class="container">
-        <div class="login-container">
-            <div class="login-card position-relative">
-                <!-- Loading Overlay -->
-                <div class="loading-overlay" id="loadingOverlay">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/90 to-accent py-12 px-4">
+    <div class="max-w-md w-full" data-aos="fade-up" data-aos-duration="800">
+        <!-- Login Card -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-pink-100 animate-fadeIn">
+            <!-- Header -->
+            <div class="bg-primary p-6 text-center">
+                <img src="<?= base_url('assets/img/catshoplogo.png') ?>" alt="Nana Cat Shop Logo" class="h-16 mx-auto mb-3 animate-float" onerror="this.style.display='none'">
+                <h2 class="text-2xl font-bold text-white">Login Admin</h2>
+            </div>
 
-                <div class="login-header">
-                    <!-- Anda bisa menambahkan logo perusahaan di sini -->
-                    <img src="<?= base_url('assets/images/logo.png') ?>" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
-                    <h4><i class="bi bi-shield-lock me-2"></i>Login Admin</h4>
-                </div>
-
-                <div class="login-body">
-                    <!-- Alert untuk pesan error/success -->
-                    <?php if (session()->getFlashdata('message')) : ?>
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <?= session()->getFlashdata('message') ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Alert untuk error -->
-                    <div id="loginError" class="alert alert-danger alert-dismissible fade show" style="display: none;" role="alert">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        <span id="errorMessage"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-
-                    <form id="loginForm" method="post">
-                        <div class="mb-4">
-                            <label for="username" class="form-label">Username atau Email</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                <input type="text" class="form-control" id="username" name="username" required
-                                    placeholder="Masukkan username atau email">
+            <!-- Body -->
+            <div class="p-8">
+                <!-- Alert untuk pesan error/success -->
+                <?php if (session()->getFlashdata('message')) : ?>
+                    <div class="mb-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md" role="alert">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-400"></i>
                             </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700"><?= session()->getFlashdata('message') ?></p>
+                            </div>
+                            <button type="button" class="ml-auto -mx-1.5 -my-1.5 text-blue-500 rounded-md focus:outline-none" data-dismiss-target="alert">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
+                    </div>
+                <?php endif; ?>
 
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required
-                                    placeholder="Masukkan password">
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="bi bi-eye"></i>
+                <!-- Alert untuk error -->
+                <div id="loginError" class="mb-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md hidden" role="alert">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-red-700" id="errorMessage"></p>
+                        </div>
+                        <button type="button" class="ml-auto -mx-1.5 -my-1.5 text-red-500 rounded-md focus:outline-none" onclick="document.getElementById('loginError').classList.add('hidden')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="loginForm" method="post">
+                    <div class="mb-5">
+                        <label for="username" class="block text-gray-700 mb-2 font-medium">Username atau Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" id="username" name="username" required
+                                class="w-full pl-10 pr-3 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
+                                placeholder="Masukkan username atau email">
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 mb-2 font-medium">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input type="password" id="password" name="password" required
+                                class="w-full pl-10 pr-12 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
+                                placeholder="Masukkan password">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <button type="button" id="togglePassword" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                                <label class="form-check-label remember-me" for="remember">
-                                    Ingat saya
-                                </label>
-                            </div>
-                        </div>
+                    <div class="mb-6 flex items-center">
+                        <input type="checkbox" id="remember" name="remember" class="w-4 h-4 text-primary border-pink-200 rounded focus:ring-primary">
+                        <label for="remember" class="ml-2 text-sm text-gray-600">Ingat saya</label>
+                    </div>
 
-                        <button type="submit" class="btn btn-primary btn-login w-100" id="btnLogin">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
-                        </button>
-                    </form>
-                </div>
+                    <button type="submit" id="btnLogin" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Login
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white p-5 rounded-lg flex items-center">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                <p class="text-primary font-medium">Memproses...</p>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <!-- AOS JS -->
     <script>
+        // Inisialisasi AOS
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+        });
+
         $(document).ready(function() {
             // Toggle Password Visibility
             $('#togglePassword').on('click', function() {
@@ -228,10 +188,10 @@
 
                 if (passwordInput.attr('type') === 'password') {
                     passwordInput.attr('type', 'text');
-                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
                 } else {
                     passwordInput.attr('type', 'password');
-                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
                 }
             });
 
@@ -240,10 +200,7 @@
                 e.preventDefault();
 
                 // Show loading overlay
-                $('#loadingOverlay').css('display', 'flex');
-
-                // Disable form
-                $('#loginForm :input').prop('disabled', true);
+                $('#loadingOverlay').removeClass('hidden');
 
                 // Get form data
                 const username = $('#username').val();
@@ -264,18 +221,16 @@
                             window.location.href = response.redirect;
                         } else {
                             $('#errorMessage').text(response.message);
-                            $('#loginError').show();
+                            $('#loginError').removeClass('hidden');
                         }
                     },
                     error: function() {
                         $('#errorMessage').text('Terjadi kesalahan. Silakan coba lagi.');
-                        $('#loginError').show();
+                        $('#loginError').removeClass('hidden');
                     },
                     complete: function() {
                         // Hide loading overlay
-                        $('#loadingOverlay').hide();
-                        // Enable form
-                        $('#loginForm :input').prop('disabled', false);
+                        $('#loadingOverlay').addClass('hidden');
                     }
                 });
             });

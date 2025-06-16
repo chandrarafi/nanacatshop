@@ -12,10 +12,10 @@
 
 <body>
     <!-- Loading Overlay -->
-    <div id="loading-overlay">
+    <!-- <div id="loading-overlay">
         <lottie-player src="<?= base_url('assets/animasi/cat.json') ?>" background="transparent" speed="1" loop autoplay></lottie-player>
         <div id="loading-text">Memuat...</div>
-    </div>
+    </div> -->
 
     <?= $this->include('admin/layouts/sidebar') ?>
     <!-- Main Content -->
@@ -115,6 +115,11 @@
             $('.menu-group').each(function() {
                 if ($(this).find('.nav-link.active').length > 0) {
                     $(this).addClass('open');
+                    // Scroll to active menu item
+                    const activeLink = $(this).find('.nav-link.active');
+                    if (activeLink.length) {
+                        $('#sidebar').scrollTop(activeLink.offset().top - 200);
+                    }
                 }
             });
 
