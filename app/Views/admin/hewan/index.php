@@ -23,16 +23,27 @@
                         <label for="jenisFilter" class="form-label fw-bold">Jenis Hewan</label>
                         <select class="form-select" id="jenisFilter">
                             <option value="">Semua Jenis</option>
-                            <option value="1">Kucing</option>
-                            <option value="2">Anjing</option>
+                            <option value="Domestic">Domestik</option>
+                            <option value="Campuran">Campuran</option>
+                            <option value="Persian">Persia</option>
+                            <option value="Maine Coon">Maine Coon</option>
+                            <option value="Siamese">Siam</option>
+                            <option value="British Shorthair">Britania Raya</option>
+                            <option value="Ragdoll">Ragdoll</option>
+                            <option value="Bengal">Bengal</option>
+                            <option value="Sphynx">Sphynx</option>
+                            <option value="Scottish Fold">Skotlandia</option>
+                            <option value="Angora">Angora</option>
+                            <option value="Himalayan">Himalaya</option>
+                            <option value="Persia">Lainnya</option>
                         </select>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
                         <label for="jenkelFilter" class="form-label fw-bold">Jenis Kelamin</label>
                         <select class="form-select" id="jenkelFilter">
                             <option value="">Semua</option>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
+                            <option value="L">Jantan</option>
+                            <option value="P">Betina</option>
                         </select>
                     </div>
                     <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
