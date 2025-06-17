@@ -74,7 +74,7 @@ class HewanController extends BaseController
             ->addNumbering('nomor')
 
             ->format('jenkel', function ($value) {
-                return ($value == 'L') ? 'Laki-laki' : 'Perempuan';
+                return ($value == 'L') ? 'Jantan' : 'Betina';
             })
 
             ->format('foto', function ($value) {

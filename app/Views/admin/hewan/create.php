@@ -55,18 +55,19 @@
                             <label for="jenis" class="form-label">Jenis Hewan <span class="text-danger">*</span></label>
                             <select class="form-select" id="jenis" name="jenis">
                                 <option value="">Pilih Jenis Hewan</option>
-                                <option value="Domestic">Domestic</option>
+                                <option value="Domestic">Domestik</option>
                                 <option value="Campuran">Campuran</option>
-                                <option value="Persian">Persian</option>
+                                <option value="Persian">Persia</option>
                                 <option value="Maine Coon">Maine Coon</option>
-                                <option value="Siamese">Siamese</option>
-                                <option value="British Shorthair">British Shorthair</option>
+                                <option value="Siamese">Siam</option>
+                                <option value="British Shorthair">Britania Raya</option>
                                 <option value="Ragdoll">Ragdoll</option>
                                 <option value="Bengal">Bengal</option>
                                 <option value="Sphynx">Sphynx</option>
-                                <option value="Scottish Fold">Scottish Fold</option>
+                                <option value="Scottish Fold">Skotlandia</option>
                                 <option value="Angora">Angora</option>
-                                <option value="Himalayan">Himalayan</option>
+                                <option value="Himalayan">Himalaya</option>
+                                <option value="Persia">Lainnya</option>
                             </select>
                             <div class="invalid-feedback"></div>
                         </div>
@@ -89,8 +90,8 @@
                             <label for="jenkel" class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
                             <select class="form-select" id="jenkel" name="jenkel">
                                 <option value="">Pilih Jenis Kelamin</option>
-                                <option value="L">Laki-laki</option>
-                                <option value="P">Perempuan</option>
+                                <option value="L">Jantan</option>
+                                <option value="P">Betina</option>
                             </select>
                             <div class="invalid-feedback"></div>
                         </div>
