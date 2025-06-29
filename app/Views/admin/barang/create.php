@@ -38,6 +38,16 @@
                                 <input type="number" class="form-control" id="jumlah" name="jumlah" min="0" value="0">
                                 <div class="invalid-feedback" id="jumlah-error"></div>
                             </div>
+                            <div class="mb-3">
+                                <label for="satuan" class="form-label fw-bold">Satuan</label>
+                                <select class="form-select" id="satuan" name="satuan">
+                                    <option value="">Pilih Satuan</option>
+                                    <?php foreach ($satuan as $s) : ?>
+                                        <option value="<?= $s ?>"><?= $s ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="invalid-feedback" id="satuan-error"></div>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">

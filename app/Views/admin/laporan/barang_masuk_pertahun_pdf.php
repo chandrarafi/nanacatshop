@@ -78,6 +78,13 @@
             margin-bottom: 2px;
         }
 
+        .periode {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -118,80 +125,6 @@
         .text-right {
             text-align: right;
         }
-
-        .detail-header {
-            background-color: #fdf5f8;
-            color: #e83e8c;
-            padding: 5px;
-            margin-top: 8px;
-            margin-bottom: 5px;
-            font-weight: bold;
-            border-radius: 3px;
-        }
-
-        .detail-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .detail-info-item {
-            width: 32%;
-        }
-
-        .nested-table {
-            margin: 0;
-            width: 100%;
-        }
-
-        .nested-table th,
-        .nested-table td {
-            padding: 3px;
-            font-size: 11px;
-        }
-
-        .nested-table th {
-            background-color: #fef2f7;
-        }
-
-        .nested-row td {
-            border-top: 2px solid #e83e8c;
-            border-bottom: 2px solid #e83e8c;
-            background-color: #fef9fb;
-            font-weight: bold;
-        }
-
-        .main-row {
-            background-color: #e83e8c;
-        }
-
-        .main-row td {
-            font-weight: bold;
-            border-top: 2px solid #fdf5f8;
-            color: white;
-        }
-
-        .status-selesai {
-            color: white;
-            font-weight: bold;
-        }
-
-        .status-pending {
-            color: white;
-            font-weight: bold;
-        }
-
-        .total-row {
-            background-color: #e83e8c;
-            color: white;
-        }
-
-        .total-row th {
-            background-color: #e83e8c;
-            color: white;
-            font-weight: bold;
-            font-size: 13px;
-        }
     </style>
 </head>
 
@@ -226,10 +159,11 @@
         <h2><?= $title ?></h2>
     </div>
 
+    <div class="periode">
+        Periode: Tahun <?= $filter['tahun'] ?>
+    </div>
+
     <div class="info">
-        <div class="info-item">
-            <strong>Filter:</strong> <?= $filter['text'] ?>
-        </div>
         <div class="info-item">
             <strong>Tanggal Cetak:</strong> <?= $tanggal_cetak ?>
         </div>
@@ -242,41 +176,41 @@
             <thead>
                 <tr>
                     <th>No</th>
+                    <th>Tanggal</th>
                     <th>Kode Barang</th>
                     <th>Nama Barang</th>
                     <th>Satuan</th>
-                    <th>Jumlah</th>
-                    <th>Harga</th>
-                    <th>Supplier</th>
+                    <th>Harga Beli</th>
+                    <th>Qty</th>
+                    <th>Harga Jual</th>
+                    <th>Total</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
                 $no = 1;
                 foreach ($barangMasuk as $item) :
-                    if (!empty($item->detail)) :
-                        foreach ($item->detail as $detail) :
+                    // Harga jual diambil dari data barang
+                    $hargaJual = isset($item['hargajual']) && $item['hargajual'] > 0 ? $item['hargajual'] : ($item['harga'] * 1.2);
                 ?>
-                            <tr>
-                                <td><?= $no++ ?></td>
-                                <td><?= safeOutput($detail['detailkdbarang']) ?></td>
-                                <td><?= safeOutput($detail['namabarang']) ?></td>
-                                <td><?= safeOutput($detail['satuan'] ?? '-') ?></td>
-                                <td class="text-center"><?= $detail['jumlah'] ?></td>
-                                <td class="text-right">Rp <?= number_format($detail['harga'], 0, ',', '.') ?></td>
-                                <td><?= safeOutput($item->namaspl) ?></td>
-                            </tr>
-                <?php
-                        endforeach;
-                    endif;
-                endforeach;
-                ?>
+                    <tr>
+                        <td class="text-center"><?= $no++ ?></td>
+                        <td class="text-center"><?= date('d/m/Y', strtotime($item['tglmasuk'])) ?></td>
+                        <td class="text-center"><?= safeOutput($item['detailkdbarang']) ?></td>
+                        <td><?= safeOutput($item['namabarang']) ?></td>
+                        <td class="text-center"><?= safeOutput($item['satuan'] ?? '-') ?></td>
+                        <td class="text-right">Rp <?= number_format($item['harga'], 0, ',', '.') ?></td>
+                        <td class="text-center"><?= $item['jumlah'] ?></td>
+                        <td class="text-right">Rp <?= number_format($hargaJual, 0, ',', '.') ?></td>
+                        <td class="text-right">Rp <?= number_format($item['totalharga'], 0, ',', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     <?php endif; ?>
 
     <div class="footer">
-        <p>Kota Padang, <?= $tanggal_ttd ?></p>
+        <p>Padang, <?= $tanggal_ttd ?></p>
         <br>
         <p>Admin Nana Cat Shop</p>
     </div>

@@ -256,27 +256,50 @@ class PerawatanController extends BaseController
         try {
             // Generate kode perawatan
             $kdperawatan = $this->perawatanModel->generateKdPerawatan();
+            log_message('debug', 'Generated kdperawatan: ' . $kdperawatan);
 
+            // Dapatkan data dari request
+            $tglperawatan = $this->request->getPost('tglperawatan');
+            $idpelanggan = $this->request->getPost('idpelanggan') ?: null;
+            $idhewan = $this->request->getPost('idhewan') ?: null;
+            $grandtotal = $this->request->getPost('grandtotal');
+            $status = $this->request->getPost('status') ?? 0;
+            $keterangan = $this->request->getPost('keterangan');
+
+            // Log data yang akan disimpan
+            log_message('debug', 'Data yang akan disimpan: tgl=' . $tglperawatan . ', idpel=' . $idpelanggan .
+                ', idhewan=' . $idhewan . ', total=' . $grandtotal . ', status=' . $status);
+
+            // Siapkan data untuk disimpan
             $data = [
                 'kdperawatan' => $kdperawatan,
-                'tglperawatan' => $this->request->getPost('tglperawatan'),
-                'idpelanggan' => $this->request->getPost('idpelanggan') ?: null,
-                'idhewan' => $this->request->getPost('idhewan') ?: null,
-                'grandtotal' => $this->request->getPost('grandtotal'),
-                'status' => $this->request->getPost('status') ?? 0,
-                'keterangan' => $this->request->getPost('keterangan'),
+                'tglperawatan' => $tglperawatan,
+                'idpelanggan' => $idpelanggan,
+                'idhewan' => $idhewan,
+                'grandtotal' => $grandtotal,
+                'status' => $status,
+                'keterangan' => $keterangan,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
             ];
 
-            // Simpan header perawatan menggunakan query builder langsung
-            $this->db->table('perawatan')->insert($data);
-            log_message('debug', 'Menyimpan header perawatan: ' . json_encode($data));
+            // Simpan header perawatan menggunakan query builder langsung untuk memastikan
+            $result = $this->db->table('perawatan')->insert($data);
+            log_message('debug', 'Hasil insert: ' . ($result ? 'true' : 'false'));
+
+            if (!$result) {
+                log_message('error', 'Insert gagal: ' . $this->db->error()['message']);
+                throw new \Exception('Gagal menyimpan header perawatan: ' . $this->db->error()['message']);
+            }
 
             // Verifikasi data perawatan tersimpan
             $perawatanCheck = $this->db->table('perawatan')->where('kdperawatan', $kdperawatan)->get()->getRowArray();
+            log_message('debug', 'Hasil verifikasi: ' . json_encode($perawatanCheck));
+
             if (!$perawatanCheck) {
+                log_message('error', 'Verifikasi gagal: Data tidak ditemukan dengan kode ' . $kdperawatan);
                 throw new \Exception('Data perawatan gagal disimpan');
             }
-            log_message('debug', 'Verifikasi header perawatan berhasil: ' . json_encode($perawatanCheck));
 
             // Simpan detail perawatan
             $detailKdFasilitas = $this->request->getPost('detailkdfasilitas');
@@ -326,19 +349,38 @@ class PerawatanController extends BaseController
         $this->db->transStart();
 
         try {
+            // Dapatkan data dari request
+            $tglperawatan = $this->request->getPost('tglperawatan');
+            $idpelanggan = $this->request->getPost('idpelanggan') ?: null;
+            $idhewan = $this->request->getPost('idhewan') ?: null;
+            $grandtotal = $this->request->getPost('grandtotal');
+            $status = $this->request->getPost('status');
+            $keterangan = $this->request->getPost('keterangan');
+
+            // Log data yang akan diupdate
+            log_message('debug', 'Data yang akan diupdate: id=' . $id . ', tgl=' . $tglperawatan .
+                ', idpel=' . $idpelanggan . ', idhewan=' . $idhewan .
+                ', total=' . $grandtotal . ', status=' . $status);
+
+            // Siapkan data untuk update
             $data = [
-                'kdperawatan' => $id,
-                'tglperawatan' => $this->request->getPost('tglperawatan'),
-                'idpelanggan' => $this->request->getPost('idpelanggan') ?: null,
-                'idhewan' => $this->request->getPost('idhewan') ?: null,
-                'grandtotal' => $this->request->getPost('grandtotal'),
-                'status' => $this->request->getPost('status'),
-                'keterangan' => $this->request->getPost('keterangan'),
+                'tglperawatan' => $tglperawatan,
+                'idpelanggan' => $idpelanggan,
+                'idhewan' => $idhewan,
+                'grandtotal' => $grandtotal,
+                'status' => $status,
+                'keterangan' => $keterangan,
+                'updated_at' => date('Y-m-d H:i:s'),
             ];
 
             // Update header perawatan menggunakan query builder langsung
-            $this->db->table('perawatan')->where('kdperawatan', $id)->update($data);
-            log_message('debug', 'Update header perawatan: ' . json_encode($data));
+            $result = $this->db->table('perawatan')->where('kdperawatan', $id)->update($data);
+            log_message('debug', 'Hasil update: ' . ($result ? 'true' : 'false'));
+
+            if ($result === false) {
+                log_message('error', 'Update gagal: ' . $this->db->error()['message']);
+                throw new \Exception('Gagal memperbarui header perawatan: ' . $this->db->error()['message']);
+            }
 
             // Hapus detail perawatan lama
             $this->db->table('detailperawatan')->where('detailkdperawatan', $id)->delete();
@@ -475,10 +517,23 @@ class PerawatanController extends BaseController
         $status = $this->request->getPost('status');
 
         try {
-            // Update status header perawatan
-            $this->perawatanModel->update($kdperawatan, [
-                'status' => $status
-            ]);
+            // Log data yang akan diupdate
+            log_message('debug', 'Updating status perawatan: id=' . $kdperawatan . ', status=' . $status);
+
+            // Update status header perawatan menggunakan query builder langsung
+            $result = $this->db->table('perawatan')
+                ->where('kdperawatan', $kdperawatan)
+                ->update([
+                    'status' => $status,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+
+            log_message('debug', 'Hasil update status: ' . ($result ? 'true' : 'false'));
+
+            if ($result === false) {
+                log_message('error', 'Update status gagal: ' . $this->db->error()['message']);
+                throw new \Exception('Gagal memperbarui status perawatan: ' . $this->db->error()['message']);
+            }
 
             $response = [
                 'status' => 'success',

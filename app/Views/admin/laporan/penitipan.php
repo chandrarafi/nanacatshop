@@ -27,10 +27,18 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="idpelanggan">Pelanggan</label>
-                                        <select class="form-control" id="idpelanggan" name="idpelanggan">
-                                            <option value="">Semua Pelanggan</option>
-                                            <!-- Options will be loaded via AJAX -->
-                                        </select>
+                                        <div class="input-group">
+                                            <input type="hidden" id="idpelanggan" name="idpelanggan">
+                                            <input type="text" class="form-control" id="nama_pelanggan" placeholder="Semua Pelanggan" readonly>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-primary" type="button" id="btnPilihPelanggan">
+                                                    <i class="bi bi-search"></i>
+                                                </button>
+                                                <button class="btn btn-danger" type="button" id="resetPelanggan">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="status">Status</label>
@@ -235,10 +243,72 @@ ModalLabel" aria-hidden="true">
     </div>
 </div>
 
+<!-- Pelanggan Modal -->
+<div class="modal fade" id="pelangganModal" tabindex="-1" role="dialog" aria-labelledby="pelangganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pelangganModalLabel">Pilih Pelanggan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="searchPelanggan" placeholder="Cari pelanggan...">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="pelangganTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama</th>
+                                <th>Alamat</th>
+                                <th>No. Telepon</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="bi bi-times"></i> Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Load pelanggan data
-        loadPelangganData();
+        // Event handler untuk tombol pilih pelanggan
+        document.getElementById('btnPilihPelanggan').addEventListener('click', function() {
+            $('#pelangganModal').modal('show');
+        });
+
+        // Event handler untuk reset pelanggan
+        document.getElementById('resetPelanggan').addEventListener('click', function() {
+            document.getElementById('idpelanggan').value = '';
+            document.getElementById('nama_pelanggan').value = '';
+        });
+
+        // Load pelanggan data saat modal dibuka
+        $('#pelangganModal').on('shown.bs.modal', function() {
+            loadPelangganData();
+            $('#searchPelanggan').focus();
+        });
+
+        // Pencarian pelanggan
+        $('#searchPelanggan').on('keyup', function() {
+            const searchTerm = $(this).val().toLowerCase();
+            $('#pelangganTable tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(searchTerm) > -1);
+            });
+        });
 
         // Filter form submit
         document.getElementById('filterForm').addEventListener('submit', function(e) {
@@ -251,6 +321,8 @@ ModalLabel" aria-hidden="true">
             document.getElementById('filterForm').reset();
             document.getElementById('filter_type').value = 'tanggal';
             toggleFilterFields('tanggal');
+            document.getElementById('idpelanggan').value = '';
+            document.getElementById('nama_pelanggan').value = '';
             document.getElementById('btnCetak').disabled = true;
             document.querySelector('#dataTable tbody').innerHTML = '';
         });
@@ -275,20 +347,74 @@ ModalLabel" aria-hidden="true">
     });
 
     function loadPelangganData() {
-        fetch('<?= base_url('admin/laporan/pelanggan-list') ?>')
+        fetch('<?= base_url('admin/laporan/penitipan/pelanggan-modal') ?>')
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    const select = document.getElementById('idpelanggan');
-                    data.data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.idpelanggan;
-                        option.textContent = item.nama;
-                        select.appendChild(option);
-                    });
+                    renderPelangganTable(data.data);
+                } else {
+                    console.error('Error loading pelanggan data:', data.message);
                 }
             })
             .catch(error => console.error('Error loading pelanggan data:', error));
+    }
+
+    function renderPelangganTable(data) {
+        const tbody = document.querySelector('#pelangganTable tbody');
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td colspan="5" class="text-center">Tidak ada data pelanggan</td>';
+            tbody.appendChild(tr);
+            return;
+        }
+
+        // Tambahkan opsi "Semua Pelanggan"
+        const allRow = document.createElement('tr');
+        allRow.className = 'table-primary';
+        allRow.innerHTML = `
+            <td colspan="4"><strong>Semua Pelanggan</strong></td>
+            <td class="text-center">
+                <button type="button" class="btn btn-sm btn-success btn-pilih-pelanggan" 
+                    data-id="" 
+                    data-nama="Semua Pelanggan">
+                    <i class="bi bi-check"></i> Pilih
+                </button>
+            </td>
+        `;
+        tbody.appendChild(allRow);
+
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.idpelanggan}</td>
+                <td>${item.nama}</td>
+                <td>${item.alamat || '-'}</td>
+                <td>${item.notelp || '-'}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-primary btn-pilih-pelanggan" 
+                        data-id="${item.idpelanggan}" 
+                        data-nama="${item.nama}">
+                        <i class="bi bi-check"></i> Pilih
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Event untuk tombol pilih pelanggan
+        document.querySelectorAll('.btn-pilih-pelanggan').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const nama = this.getAttribute('data-nama');
+
+                document.getElementById('idpelanggan').value = id;
+                document.getElementById('nama_pelanggan').value = nama;
+
+                $('#pelangganModal').modal('hide');
+            });
+        });
     }
 
     function toggleFilterFields(filterType) {
@@ -301,7 +427,7 @@ ModalLabel" aria-hidden="true">
         const formData = new FormData(document.getElementById('filterForm'));
         const params = new URLSearchParams(formData);
 
-        fetch('<?= base_url('admin/laporan/penitipan-data') ?>?' + params.toString())
+        fetch('<?= base_url('admin/laporan/penitipan/data') ?>?' + params.toString())
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -374,7 +500,7 @@ ModalLabel" aria-hidden="true">
 
     function showDetail(kdpenitipan) {
         // Cari data penitipan dari data yang sudah dimuat
-        fetch('<?= base_url('admin/laporan/penitipan-data') ?>?kdpenitipan=' + kdpenitipan)
+        fetch('<?= base_url('admin/laporan/penitipan/data') ?>?kdpenitipan=' + kdpenitipan)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success' && data.data.length > 0) {
@@ -482,10 +608,37 @@ ModalLabel" aria-hidden="true">
     }
 
     function cetakPDF() {
-        const formData = new FormData(document.getElementById('filterForm'));
-        const params = new URLSearchParams(formData);
+        const filterType = document.getElementById('filter_type').value;
+        let url = '<?= base_url('admin/laporan/penitipan/cetak') ?>?';
 
-        window.open('<?= base_url('admin/laporan/penitipan/cetak') ?>?' + params.toString(), '_blank');
+        // Tambahkan parameter filter type
+        url += 'filter_type=' + filterType;
+
+        // Tambahkan parameter berdasarkan tipe filter
+        if (filterType === 'tanggal') {
+            const tglAwal = document.getElementById('tgl_awal').value;
+            const tglAkhir = document.getElementById('tgl_akhir').value;
+            if (tglAwal) url += '&tgl_awal=' + tglAwal;
+            if (tglAkhir) url += '&tgl_akhir=' + tglAkhir;
+        } else if (filterType === 'bulan') {
+            const bulan = document.getElementById('bulan').value;
+            const tahunBulan = document.getElementById('tahun_bulan').value;
+            if (bulan) url += '&bulan=' + bulan;
+            if (tahunBulan) url += '&tahun=' + tahunBulan;
+        } else if (filterType === 'tahun') {
+            const tahun = document.getElementById('tahun').value;
+            if (tahun) url += '&tahun=' + tahun;
+        }
+
+        // Tambahkan parameter pelanggan jika ada
+        const idpelanggan = document.getElementById('idpelanggan').value;
+        if (idpelanggan) url += '&idpelanggan=' + idpelanggan;
+
+        // Tambahkan parameter status jika ada
+        const status = document.getElementById('status').value;
+        if (status !== '') url += '&status=' + status;
+
+        window.open(url, '_blank');
     }
 </script>
 <?= $this->endSection() ?>

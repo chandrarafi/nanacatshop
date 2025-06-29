@@ -44,6 +44,7 @@
                                 <th width="15%">Kode Barang</th>
                                 <th width="20%">Nama Barang</th>
                                 <th width="10%">Stok</th>
+                                <th width="10%">Satuan</th>
                                 <th width="15%">Harga Beli</th>
                                 <th width="15%">Harga Jual</th>
                                 <th width="10%">Foto</th>
@@ -168,6 +169,9 @@
                 },
                 {
                     data: 'jumlah'
+                },
+                {
+                    data: 'satuan'
                 },
                 {
                     data: 'hargabeli'

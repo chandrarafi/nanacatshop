@@ -12,7 +12,7 @@ class BarangModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['kdbarang', 'namabarang', 'jumlah', 'foto', 'hargabeli', 'hargajual', 'kdkategori'];
+    protected $allowedFields    = ['kdbarang', 'namabarang', 'jumlah', 'foto', 'hargabeli', 'hargajual', 'satuan', 'kdkategori'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -98,6 +98,12 @@ class BarangModel extends Model
                 'errors' => [
                     'required' => 'Kategori harus dipilih',
                     'max_length' => 'Kode kategori maksimal 7 karakter'
+                ]
+            ],
+            'satuan' => [
+                'rules' => 'permit_empty|max_length[20]',
+                'errors' => [
+                    'max_length' => 'Satuan maksimal 20 karakter'
                 ]
             ],
         ];
