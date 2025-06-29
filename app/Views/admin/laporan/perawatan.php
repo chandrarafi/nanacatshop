@@ -27,10 +27,18 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="idpelanggan">Pelanggan</label>
-                                        <select class="form-control" id="idpelanggan" name="idpelanggan">
-                                            <option value="">Semua Pelanggan</option>
-                                            <!-- Options will be loaded via AJAX -->
-                                        </select>
+                                        <div class="input-group">
+                                            <input type="hidden" id="idpelanggan" name="idpelanggan">
+                                            <input type="text" class="form-control" id="nama_pelanggan" placeholder="Semua Pelanggan" readonly>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-primary" type="button" id="btnPilihPelanggan">
+                                                    <i class="bi bi-search"></i>
+                                                </button>
+                                                <button class="btn btn-danger" type="button" id="resetPelanggan">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="status">Status</label>
@@ -218,6 +226,46 @@ ModalLabel" aria-hidden="true">
     </div>
 </div>
 
+<!-- Pelanggan Modal -->
+<div class="modal fade" id="pelangganModal" tabindex="-1" role="dialog" aria-labelledby="pelangganModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pelangganModalLabel">Pilih Pelanggan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="searchPelanggan" placeholder="Cari pelanggan...">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="pelangganTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama</th>
+                                <th>Alamat</th>
+                                <th>No. Telepon</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be loaded here via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="bi bi-times"></i> Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Load pelanggan data
@@ -227,6 +275,35 @@ ModalLabel" aria-hidden="true">
         document.getElementById('filterForm').addEventListener('submit', function(e) {
             e.preventDefault();
             loadData();
+        });
+
+        // Tombol pilih pelanggan
+        document.getElementById('btnPilihPelanggan').addEventListener('click', function() {
+            $('#pelangganModal').modal('show');
+        });
+
+        // Tombol reset pelanggan
+        document.getElementById('resetPelanggan').addEventListener('click', function() {
+            document.getElementById('idpelanggan').value = '';
+            document.getElementById('nama_pelanggan').value = '';
+        });
+
+        // Search pelanggan
+        document.getElementById('searchPelanggan').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#pelangganTable tbody tr');
+
+            rows.forEach(row => {
+                const nama = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const alamat = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const notelp = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+
+                if (nama.includes(searchValue) || alamat.includes(searchValue) || notelp.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         });
 
         // Reset button
@@ -258,16 +335,45 @@ ModalLabel" aria-hidden="true">
     });
 
     function loadPelangganData() {
-        fetch('<?= base_url('admin/laporan/pelanggan-list') ?>')
+        fetch('<?= base_url('admin/laporan/pelanggan/list') ?>')
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    const select = document.getElementById('idpelanggan');
+                    const tbody = document.querySelector('#pelangganTable tbody');
+                    tbody.innerHTML = '';
+
+                    if (data.data.length === 0) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = '<td colspan="5" class="text-center">Tidak ada data pelanggan</td>';
+                        tbody.appendChild(tr);
+                        return;
+                    }
+
                     data.data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.idpelanggan;
-                        option.textContent = item.nama;
-                        select.appendChild(option);
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.idpelanggan}</td>
+                            <td>${item.nama}</td>
+                            <td>${item.alamat || '-'}</td>
+                            <td>${item.notelp || '-'}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-primary pilih-pelanggan" data-id="${item.idpelanggan}" data-nama="${item.nama}">
+                                    <i class="fas fa-check"></i> Pilih
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Tambahkan event listener untuk tombol pilih
+                    document.querySelectorAll('.pilih-pelanggan').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const id = this.getAttribute('data-id');
+                            const nama = this.getAttribute('data-nama');
+                            document.getElementById('idpelanggan').value = id;
+                            document.getElementById('nama_pelanggan').value = nama;
+                            $('#pelangganModal').modal('hide');
+                        });
                     });
                 }
             })
@@ -284,7 +390,7 @@ ModalLabel" aria-hidden="true">
         const formData = new FormData(document.getElementById('filterForm'));
         const params = new URLSearchParams(formData);
 
-        fetch('<?= base_url('admin/laporan/perawatan-data') ?>?' + params.toString())
+        fetch('<?= base_url('admin/laporan/perawatan/data') ?>?' + params.toString())
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -356,7 +462,7 @@ ModalLabel" aria-hidden="true">
 
     function showDetail(kdperawatan) {
         // Cari data perawatan dari data yang sudah dimuat
-        fetch('<?= base_url('admin/laporan/perawatan-data') ?>?kdperawatan=' + kdperawatan)
+        fetch('<?= base_url('admin/laporan/perawatan/data') ?>?kdperawatan=' + kdperawatan)
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success' && data.data.length > 0) {

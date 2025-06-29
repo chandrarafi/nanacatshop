@@ -186,6 +186,16 @@ class LaporanController extends BaseController
         ]);
     }
 
+    // Endpoint untuk data pelanggan di modal
+    public function getPelangganForModal()
+    {
+        $pelanggan = $this->pelangganModel->findAll();
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $pelanggan
+        ]);
+    }
+
     public function cetakHewanPdf()
     {
         $jenis = $this->request->getGet('jenis');
@@ -665,6 +675,12 @@ class LaporanController extends BaseController
         return view('admin/laporan/barang_masuk', compact('title'));
     }
 
+    public function barangMasukPerbulan()
+    {
+        $title = 'Laporan Barang Masuk Perbulan';
+        return view('admin/laporan/barang_masuk_perbulan', compact('title'));
+    }
+
     public function getBarangMasukData()
     {
         $filterType = $this->request->getGet('filter_type') ?? 'tanggal'; // tanggal, bulan, tahun
@@ -844,7 +860,6 @@ class LaporanController extends BaseController
                 'supplier' => $namaSupplier ?? 'Semua',
                 'status' => $statusText,
                 'is_detail' => !empty($kdmasuk), // Tambahkan flag untuk menandai cetak detail
-                'compact_view' => true, // Tambahkan flag untuk tampilan yang lebih ringkas
             ],
             'tanggal_cetak' => $tanggalCetak,
             'tanggal_ttd' => $tanggalTTD,
@@ -861,26 +876,138 @@ class LaporanController extends BaseController
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isPhpEnabled', true);
         $options->set('isRemoteEnabled', true); // Mengizinkan gambar dari URL
-        $options->set('defaultFont', 'Arial');
-        $options->set('defaultMediaType', 'screen');
-        $options->set('isFontSubsettingEnabled', true);
-        $options->set('defaultEncoding', 'utf-8');
 
         // Inisialisasi DOMPDF
         $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html, 'UTF-8');
-        $dompdf->setPaper('A4', !empty($kdmasuk) ? 'portrait' : 'landscape'); // Gunakan portrait untuk detail, landscape untuk semua
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
         $dompdf->render();
 
         // Output PDF
-        $filename = !empty($kdmasuk) ? 'Detail_Barang_Masuk_' . $kdmasuk : 'Laporan_Barang_Masuk';
-        $dompdf->stream($filename . '_' . date('Ymd_His') . '.pdf', ['Attachment' => false]);
+        $dompdf->stream('Laporan_Barang_Masuk_' . date('Ymd_His') . '.pdf', ['Attachment' => false]);
         exit();
     }
 
     public function cetakDetailBarangMasuk($kdmasuk)
     {
         return redirect()->to('admin/laporan/barang-masuk/cetak?kdmasuk=' . $kdmasuk);
+    }
+
+    public function getBarangMasukPerbulanData()
+    {
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+
+        if (empty($bulan) || empty($tahun)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Parameter bulan dan tahun diperlukan',
+                'data' => []
+            ]);
+        }
+
+        // Dapatkan semua detail barang masuk untuk bulan dan tahun tertentu
+        $builder = $this->db->table('detailbarangmasuk d');
+        $builder->select('d.*, b.namabarang, b.satuan, b.hargajual, bm.tglmasuk, bm.kdspl, s.namaspl');
+        $builder->join('barangmasuk bm', 'bm.kdmasuk = d.detailkdmasuk', 'left');
+        $builder->join('barang b', 'b.kdbarang = d.detailkdbarang', 'left');
+        $builder->join('supplier s', 's.kdspl = bm.kdspl', 'left');
+        $builder->where('MONTH(bm.tglmasuk)', $bulan);
+        $builder->where('YEAR(bm.tglmasuk)', $tahun);
+        $builder->orderBy('bm.tglmasuk', 'ASC');
+        $builder->orderBy('d.detailkdbarang', 'ASC');
+
+        $data = $builder->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    public function cetakBarangMasukPerbulanPdf()
+    {
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+
+        if (empty($bulan) || empty($tahun)) {
+            return redirect()->back()->with('error', 'Parameter bulan dan tahun diperlukan');
+        }
+
+        // Dapatkan semua detail barang masuk untuk bulan dan tahun tertentu
+        $builder = $this->db->table('detailbarangmasuk d');
+        $builder->select('d.*, b.namabarang, b.satuan, b.hargajual, bm.tglmasuk, bm.kdspl, s.namaspl');
+        $builder->join('barangmasuk bm', 'bm.kdmasuk = d.detailkdmasuk', 'left');
+        $builder->join('barang b', 'b.kdbarang = d.detailkdbarang', 'left');
+        $builder->join('supplier s', 's.kdspl = bm.kdspl', 'left');
+        $builder->where('MONTH(bm.tglmasuk)', $bulan);
+        $builder->where('YEAR(bm.tglmasuk)', $tahun);
+        $builder->orderBy('bm.tglmasuk', 'ASC');
+        $builder->orderBy('d.detailkdbarang', 'ASC');
+
+        $barangMasuk = $builder->get()->getResultArray();
+
+        // Siapkan data untuk view
+        $logoPath = FCPATH . 'assets/img/catshoplogo.png';
+        $logoData = '';
+
+        if (file_exists($logoPath)) {
+            $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoData = 'data:image/' . $logoType . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        // Format nama bulan
+        $namaBulan = date('F', mktime(0, 0, 0, $bulan, 1));
+        $bulanIndo = [
+            'January' => 'Januari',
+            'February' => 'Februari',
+            'March' => 'Maret',
+            'April' => 'April',
+            'May' => 'Mei',
+            'June' => 'Juni',
+            'July' => 'Juli',
+            'August' => 'Agustus',
+            'September' => 'September',
+            'October' => 'Oktober',
+            'November' => 'November',
+            'December' => 'Desember'
+        ];
+        $namaBulan = $bulanIndo[$namaBulan] ?? $namaBulan;
+
+        $tanggalCetak = date('d-m-Y H:i:s');
+        $tanggalTTD = date('d F Y');
+        $tanggalTTD = str_replace(array_keys($bulanIndo), array_values($bulanIndo), $tanggalTTD);
+
+        $data = [
+            'title' => 'Laporan Barang Masuk Perbulan',
+            'barangMasuk' => $barangMasuk,
+            'filter' => [
+                'bulan' => $namaBulan,
+                'tahun' => $tahun,
+            ],
+            'tanggal_cetak' => $tanggalCetak,
+            'tanggal_ttd' => $tanggalTTD,
+            'logo' => $logoData
+        ];
+
+        // Render view ke HTML
+        $html = view('admin/laporan/barang_masuk_perbulan_pdf', $data);
+
+        // Konfigurasi DOMPDF
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        // Inisialisasi DOMPDF
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        // Output PDF
+        $dompdf->stream('Laporan_Barang_Masuk_' . $namaBulan . '_' . $tahun . '.pdf', ['Attachment' => false]);
+        exit();
     }
 
     // Laporan Penjualan
@@ -1103,6 +1230,334 @@ class LaporanController extends BaseController
         return $this->cetakPenjualanPdf();
     }
 
+    public function getPenjualanPerbulanData()
+    {
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+
+        // Load model
+        $penjualanModel = new \App\Models\PenjualanModel();
+        $detailPenjualanModel = new \App\Models\DetailPenjualanModel();
+
+        $builder = $penjualanModel->builder();
+        $builder->select('penjualan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
+        $builder->join('pelanggan', 'pelanggan.idpelanggan = penjualan.idpelanggan', 'left');
+
+        // Filter berdasarkan pelanggan
+        if (!empty($idpelanggan)) {
+            $builder->where('penjualan.idpelanggan', $idpelanggan);
+        }
+
+        // Filter berdasarkan status
+        if ($status !== '' && $status !== null) {
+            $builder->where('penjualan.status', $status);
+        }
+
+        // Filter berdasarkan bulan dan tahun
+        if (!empty($bulan) && !empty($tahun)) {
+            $builder->where('MONTH(penjualan.tglpenjualan)', $bulan);
+            $builder->where('YEAR(penjualan.tglpenjualan)', $tahun);
+        }
+
+        $builder->orderBy('penjualan.tglpenjualan', 'ASC');
+        $data = $builder->get()->getResult();
+
+        // Ambil detail untuk setiap penjualan
+        foreach ($data as &$item) {
+            $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    public function cetakPenjualanPerbulanPdf()
+    {
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+
+        // Load model
+        $penjualanModel = new \App\Models\PenjualanModel();
+        $detailPenjualanModel = new \App\Models\DetailPenjualanModel();
+        $pelangganModel = new \App\Models\PelangganModel();
+
+        $builder = $penjualanModel->builder();
+        $builder->select('penjualan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
+        $builder->join('pelanggan', 'pelanggan.idpelanggan = penjualan.idpelanggan', 'left');
+
+        // Filter berdasarkan pelanggan
+        if (!empty($idpelanggan)) {
+            $builder->where('penjualan.idpelanggan', $idpelanggan);
+            $pelangganInfo = $pelangganModel->find($idpelanggan);
+            $namaPelanggan = $pelangganInfo ? $pelangganInfo['nama'] : 'Pelanggan Umum';
+        } else {
+            $namaPelanggan = 'Semua';
+        }
+
+        // Filter berdasarkan status
+        if ($status !== '' && $status !== null) {
+            $builder->where('penjualan.status', $status);
+        }
+
+        // Filter berdasarkan bulan dan tahun
+        $namaBulan = date('F', mktime(0, 0, 0, $bulan, 10));
+        $filterText = 'Bulan: ' . $namaBulan . ' ' . $tahun;
+
+        $builder->where('MONTH(penjualan.tglpenjualan)', $bulan);
+        $builder->where('YEAR(penjualan.tglpenjualan)', $tahun);
+
+        $builder->orderBy('penjualan.tglpenjualan', 'ASC');
+        $penjualan = $builder->get()->getResult();
+
+        // Ambil detail untuk setiap penjualan
+        foreach ($penjualan as &$item) {
+            $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+        }
+
+        // Siapkan data untuk view
+        $logoPath = FCPATH . 'assets/img/catshoplogo.png';
+        $logoData = '';
+
+        if (file_exists($logoPath)) {
+            $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoData = 'data:image/' . $logoType . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        // Teks status
+        $statusText = '';
+        if ($status === '0') {
+            $statusText = 'Pending';
+        } elseif ($status === '1') {
+            $statusText = 'Selesai';
+        } else {
+            $statusText = 'Semua';
+        }
+
+        // Format tanggal Indonesia
+        $bulanIndo = [
+            'January' => 'Januari',
+            'February' => 'Februari',
+            'March' => 'Maret',
+            'April' => 'April',
+            'May' => 'Mei',
+            'June' => 'Juni',
+            'July' => 'Juli',
+            'August' => 'Agustus',
+            'September' => 'September',
+            'October' => 'Oktober',
+            'November' => 'November',
+            'December' => 'Desember'
+        ];
+
+        $tanggalCetak = date('d-m-Y H:i:s');
+        $tanggalTTD = date('d F Y');
+        $tanggalTTD = str_replace(array_keys($bulanIndo), array_values($bulanIndo), $tanggalTTD);
+
+        $data = [
+            'title' => 'Laporan Penjualan Bulan ' . $namaBulan . ' ' . $tahun,
+            'penjualan' => $penjualan,
+            'filter' => [
+                'type' => 'bulan',
+                'text' => $filterText,
+                'pelanggan' => $namaPelanggan,
+                'status' => $statusText,
+                'is_detail' => false,
+                'compact_view' => true,
+            ],
+            'tanggal_cetak' => $tanggalCetak,
+            'tanggal_ttd' => $tanggalTTD,
+            'kota' => 'Kota Padang',
+            'admin' => 'Admin Nana Cat Shop',
+            'logo' => $logoData
+        ];
+
+        // Render view ke HTML
+        $html = view('admin/laporan/penjualan_pdf', $data);
+
+        // Konfigurasi DOMPDF
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true); // Mengizinkan gambar dari URL
+
+        // Inisialisasi DOMPDF
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        // Output PDF
+        $dompdf->stream('Laporan_Penjualan_' . $namaBulan . '_' . $tahun . '.pdf', ['Attachment' => false]);
+        exit();
+    }
+
+    public function getPenjualanPertahunData()
+    {
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+
+        // Load model
+        $penjualanModel = new \App\Models\PenjualanModel();
+        $detailPenjualanModel = new \App\Models\DetailPenjualanModel();
+
+        $builder = $penjualanModel->builder();
+        $builder->select('penjualan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
+        $builder->join('pelanggan', 'pelanggan.idpelanggan = penjualan.idpelanggan', 'left');
+
+        // Filter berdasarkan pelanggan
+        if (!empty($idpelanggan)) {
+            $builder->where('penjualan.idpelanggan', $idpelanggan);
+        }
+
+        // Filter berdasarkan status
+        if ($status !== '' && $status !== null) {
+            $builder->where('penjualan.status', $status);
+        }
+
+        // Filter berdasarkan tahun
+        if (!empty($tahun)) {
+            $builder->where('YEAR(penjualan.tglpenjualan)', $tahun);
+        }
+
+        $builder->orderBy('penjualan.tglpenjualan', 'ASC');
+        $data = $builder->get()->getResult();
+
+        // Ambil detail untuk setiap penjualan
+        foreach ($data as &$item) {
+            $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    public function cetakPenjualanPertahunPdf()
+    {
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+
+        // Load model
+        $penjualanModel = new \App\Models\PenjualanModel();
+        $detailPenjualanModel = new \App\Models\DetailPenjualanModel();
+        $pelangganModel = new \App\Models\PelangganModel();
+
+        $builder = $penjualanModel->builder();
+        $builder->select('penjualan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
+        $builder->join('pelanggan', 'pelanggan.idpelanggan = penjualan.idpelanggan', 'left');
+
+        // Filter berdasarkan pelanggan
+        if (!empty($idpelanggan)) {
+            $builder->where('penjualan.idpelanggan', $idpelanggan);
+            $pelangganInfo = $pelangganModel->find($idpelanggan);
+            $namaPelanggan = $pelangganInfo ? $pelangganInfo['nama'] : 'Pelanggan Umum';
+        } else {
+            $namaPelanggan = 'Semua';
+        }
+
+        // Filter berdasarkan status
+        if ($status !== '' && $status !== null) {
+            $builder->where('penjualan.status', $status);
+        }
+
+        // Filter berdasarkan tahun
+        $filterText = 'Tahun: ' . $tahun;
+        $builder->where('YEAR(penjualan.tglpenjualan)', $tahun);
+
+        $builder->orderBy('penjualan.tglpenjualan', 'ASC');
+        $penjualan = $builder->get()->getResult();
+
+        // Ambil detail untuk setiap penjualan
+        foreach ($penjualan as &$item) {
+            $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+        }
+
+        // Siapkan data untuk view
+        $logoPath = FCPATH . 'assets/img/catshoplogo.png';
+        $logoData = '';
+
+        if (file_exists($logoPath)) {
+            $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoData = 'data:image/' . $logoType . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        // Teks status
+        $statusText = '';
+        if ($status === '0') {
+            $statusText = 'Pending';
+        } elseif ($status === '1') {
+            $statusText = 'Selesai';
+        } else {
+            $statusText = 'Semua';
+        }
+
+        // Format tanggal Indonesia
+        $bulanIndo = [
+            'January' => 'Januari',
+            'February' => 'Februari',
+            'March' => 'Maret',
+            'April' => 'April',
+            'May' => 'Mei',
+            'June' => 'Juni',
+            'July' => 'Juli',
+            'August' => 'Agustus',
+            'September' => 'September',
+            'October' => 'Oktober',
+            'November' => 'November',
+            'December' => 'Desember'
+        ];
+
+        $tanggalCetak = date('d-m-Y H:i:s');
+        $tanggalTTD = date('d F Y');
+        $tanggalTTD = str_replace(array_keys($bulanIndo), array_values($bulanIndo), $tanggalTTD);
+
+        $data = [
+            'title' => 'Laporan Penjualan Tahun ' . $tahun,
+            'penjualan' => $penjualan,
+            'filter' => [
+                'type' => 'tahun',
+                'text' => $filterText,
+                'pelanggan' => $namaPelanggan,
+                'status' => $statusText,
+                'is_detail' => false,
+                'compact_view' => true,
+            ],
+            'tanggal_cetak' => $tanggalCetak,
+            'tanggal_ttd' => $tanggalTTD,
+            'kota' => 'Kota Padang',
+            'admin' => 'Admin Nana Cat Shop',
+            'logo' => $logoData
+        ];
+
+        // Render view ke HTML
+        $html = view('admin/laporan/penjualan_pdf', $data);
+
+        // Konfigurasi DOMPDF
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true); // Mengizinkan gambar dari URL
+
+        // Inisialisasi DOMPDF
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        // Output PDF
+        $dompdf->stream('Laporan_Penjualan_Tahun_' . $tahun . '.pdf', ['Attachment' => false]);
+        exit();
+    }
+
     // Laporan Penitipan
     public function penitipan()
     {
@@ -1127,6 +1582,7 @@ class LaporanController extends BaseController
         $builder = $this->db->table('penitipan');
         $builder->select('penitipan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
         $builder->select('(SELECT h.namahewan FROM detailpenitipan dp JOIN hewan h ON h.idhewan = dp.idhewan WHERE dp.kdpenitipan = penitipan.kdpenitipan LIMIT 1) as namahewan', false);
+        $builder->select('(SELECT h.idhewan FROM detailpenitipan dp JOIN hewan h ON h.idhewan = dp.idhewan WHERE dp.kdpenitipan = penitipan.kdpenitipan LIMIT 1) as kdhewan', false);
         $builder->join('pelanggan', 'pelanggan.idpelanggan = penitipan.idpelanggan', 'left');
 
         // Filter berdasarkan pelanggan
@@ -1186,6 +1642,7 @@ class LaporanController extends BaseController
         $builder = $this->db->table('penitipan');
         $builder->select('penitipan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
         $builder->select('(SELECT h.namahewan FROM detailpenitipan dp JOIN hewan h ON h.idhewan = dp.idhewan WHERE dp.kdpenitipan = penitipan.kdpenitipan LIMIT 1) as namahewan', false);
+        $builder->select('(SELECT h.idhewan FROM detailpenitipan dp JOIN hewan h ON h.idhewan = dp.idhewan WHERE dp.kdpenitipan = penitipan.kdpenitipan LIMIT 1) as kdhewan', false);
         $builder->join('pelanggan', 'pelanggan.idpelanggan = penitipan.idpelanggan', 'left');
 
         // Jika ada parameter kdpenitipan, filter berdasarkan kode penitipan saja
@@ -1341,7 +1798,7 @@ class LaporanController extends BaseController
         $tglAkhir = $this->request->getGet('tgl_akhir') ?? '';
         $bulan = $this->request->getGet('bulan') ?? '';
         $tahun = $this->request->getGet('tahun') ?? '';
-        $idpelanggan = $this->request->getGet('pelanggan') ?? '';
+        $idpelanggan = $this->request->getGet('idpelanggan') ?? '';
         $status = $this->request->getGet('status') ?? '';
         $kdperawatan = $this->request->getGet('kdperawatan') ?? '';
 
@@ -1351,7 +1808,7 @@ class LaporanController extends BaseController
 
         // Query builder untuk mendapatkan data perawatan dengan join ke pelanggan dan hewan
         $builder = $this->db->table('perawatan');
-        $builder->select('perawatan.*, pelanggan.nama as namapelanggan, hewan.namahewan');
+        $builder->select('perawatan.*, perawatan.created_at, perawatan.updated_at, pelanggan.nama as namapelanggan, hewan.namahewan, hewan.idhewan as kdhewan');
         $builder->join('pelanggan', 'pelanggan.idpelanggan = perawatan.idpelanggan', 'left');
         $builder->join('hewan', 'hewan.idhewan = perawatan.idhewan', 'left');
 
@@ -1416,7 +1873,7 @@ class LaporanController extends BaseController
         $tglAkhir = $this->request->getGet('tgl_akhir') ?? '';
         $bulan = $this->request->getGet('bulan') ?? '';
         $tahun = $this->request->getGet('tahun') ?? '';
-        $idpelanggan = $this->request->getGet('pelanggan') ?? '';
+        $idpelanggan = $this->request->getGet('idpelanggan') ?? '';
         $status = $this->request->getGet('status') ?? '';
         $kdperawatan = $this->request->getGet('kdperawatan') ?? '';
 
@@ -1454,7 +1911,7 @@ class LaporanController extends BaseController
 
         // Query builder untuk mendapatkan data perawatan dengan join ke pelanggan dan hewan
         $builder = $this->db->table('perawatan');
-        $builder->select('perawatan.*, pelanggan.nama as namapelanggan, hewan.namahewan');
+        $builder->select('perawatan.*, perawatan.created_at, perawatan.updated_at, pelanggan.nama as namapelanggan, hewan.namahewan, hewan.idhewan as kdhewan');
         $builder->join('pelanggan', 'pelanggan.idpelanggan = perawatan.idpelanggan', 'left');
         $builder->join('hewan', 'hewan.idhewan = perawatan.idhewan', 'left');
 
@@ -1590,5 +2047,116 @@ class LaporanController extends BaseController
     public function cetakDetailPerawatan($kdperawatan)
     {
         return $this->cetakPerawatanPdf();
+    }
+
+    public function getBarangMasukPertahunData()
+    {
+        $tahun = $this->request->getGet('tahun');
+
+        if (empty($tahun)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Parameter tahun diperlukan',
+                'data' => []
+            ]);
+        }
+
+        // Dapatkan semua detail barang masuk untuk tahun tertentu
+        $builder = $this->db->table('detailbarangmasuk d');
+        $builder->select('d.*, b.namabarang, b.satuan, b.hargajual, bm.tglmasuk, bm.kdspl, s.namaspl');
+        $builder->join('barangmasuk bm', 'bm.kdmasuk = d.detailkdmasuk', 'left');
+        $builder->join('barang b', 'b.kdbarang = d.detailkdbarang', 'left');
+        $builder->join('supplier s', 's.kdspl = bm.kdspl', 'left');
+        $builder->where('YEAR(bm.tglmasuk)', $tahun);
+        $builder->orderBy('bm.tglmasuk', 'ASC');
+        $builder->orderBy('d.detailkdbarang', 'ASC');
+
+        $data = $builder->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    public function cetakBarangMasukPertahunPdf()
+    {
+        $tahun = $this->request->getGet('tahun');
+
+        if (empty($tahun)) {
+            return redirect()->back()->with('error', 'Parameter tahun diperlukan');
+        }
+
+        // Dapatkan semua detail barang masuk untuk tahun tertentu
+        $builder = $this->db->table('detailbarangmasuk d');
+        $builder->select('d.*, b.namabarang, b.satuan, b.hargajual, bm.tglmasuk, bm.kdspl, s.namaspl');
+        $builder->join('barangmasuk bm', 'bm.kdmasuk = d.detailkdmasuk', 'left');
+        $builder->join('barang b', 'b.kdbarang = d.detailkdbarang', 'left');
+        $builder->join('supplier s', 's.kdspl = bm.kdspl', 'left');
+        $builder->where('YEAR(bm.tglmasuk)', $tahun);
+        $builder->orderBy('bm.tglmasuk', 'ASC');
+        $builder->orderBy('d.detailkdbarang', 'ASC');
+
+        $barangMasuk = $builder->get()->getResultArray();
+
+        // Siapkan data untuk view
+        $logoPath = FCPATH . 'assets/img/catshoplogo.png';
+        $logoData = '';
+
+        if (file_exists($logoPath)) {
+            $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoData = 'data:image/' . $logoType . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        $tanggalCetak = date('d-m-Y H:i:s');
+
+        // Format tanggal Indonesia
+        $bulanIndo = [
+            'January' => 'Januari',
+            'February' => 'Februari',
+            'March' => 'Maret',
+            'April' => 'April',
+            'May' => 'Mei',
+            'June' => 'Juni',
+            'July' => 'Juli',
+            'August' => 'Agustus',
+            'September' => 'September',
+            'October' => 'Oktober',
+            'November' => 'November',
+            'December' => 'Desember'
+        ];
+
+        $tanggalTTD = date('d F Y');
+        $tanggalTTD = str_replace(array_keys($bulanIndo), array_values($bulanIndo), $tanggalTTD);
+
+        $data = [
+            'title' => 'Laporan Barang Masuk Pertahun',
+            'barangMasuk' => $barangMasuk,
+            'filter' => [
+                'tahun' => $tahun,
+            ],
+            'tanggal_cetak' => $tanggalCetak,
+            'tanggal_ttd' => $tanggalTTD,
+            'logo' => $logoData
+        ];
+
+        // Render view ke HTML
+        $html = view('admin/laporan/barang_masuk_pertahun_pdf', $data);
+
+        // Konfigurasi DOMPDF
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        // Inisialisasi DOMPDF
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        // Output PDF
+        $dompdf->stream('Laporan_Barang_Masuk_Tahun_' . $tahun . '.pdf', ['Attachment' => false]);
+        exit();
     }
 }

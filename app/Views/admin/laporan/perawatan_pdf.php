@@ -248,178 +248,72 @@
 
     <div class="info">
         <div class="info-item">
-            <strong>Filter:</strong> <?= $filter['text'] ?>
+            <strong>Tanggal: <?= date('d-m-Y') ?></strong>
         </div>
-        <div class="info-item">
-            <strong>Pelanggan:</strong> <?= $filter['pelanggan'] ?>
-        </div>
-        <div class="info-item">
-            <strong>Status:</strong> <?= $filter['status'] ?>
-        </div>
-        <div class="info-item">
-            <strong>Tanggal Cetak:</strong> <?= $tanggal_cetak ?>
-        </div>
+        <?php if (!empty($filter['text'])) : ?>
+            <div class="info-item">
+                <strong>Filter: <?= $filter['text'] ?></strong>
+            </div>
+        <?php endif; ?>
+        <?php if (!empty($filter['pelanggan']) && $filter['pelanggan'] !== 'Semua') : ?>
+            <div class="info-item">
+                <strong>Pelanggan: <?= $filter['pelanggan'] ?></strong>
+            </div>
+        <?php endif; ?>
+        <?php if (!empty($filter['status']) && $filter['status'] !== 'Semua') : ?>
+            <div class="info-item">
+                <strong>Status: <?= $filter['status'] ?></strong>
+            </div>
+        <?php endif; ?>
     </div>
 
     <?php if (empty($perawatan)) : ?>
         <p class="text-center">Tidak ada data yang ditemukan.</p>
     <?php else : ?>
-        <?php if (isset($filter['is_detail']) && $filter['is_detail']) : ?>
-            <?php
-            // Tampilan untuk cetak detail per kode perawatan
-            $item = $perawatan[0]; // Hanya ada 1 item
-            $details = $item->detail;
-            ?>
-            <div class="detail-header">Data Perawatan</div>
-            <table class="data-table">
+        <!-- Tampilan untuk cetak laporan keseluruhan -->
+        <table class="data-table">
+            <thead>
                 <tr>
-                    <td width="20%"><strong>Kode Perawatan</strong></td>
-                    <td width="30%"><?= safeOutput($item->kdperawatan) ?></td>
-                    <td width="20%"><strong>Tanggal Perawatan</strong></td>
-                    <td width="30%"><?= date('d-m-Y', strtotime($item->tglperawatan)) ?></td>
+                    <th width="5%">No</th>
+                    <th width="10%">Kode Perawatan</th>
+                    <th width="15%">Nama Pelanggan</th>
+                    <th width="10%">Kode Hewan</th>
+                    <th width="15%">Nama Hewan</th>
+                    <th width="10%">Tgl Perawatan</th>
+                    <th width="10%">Jam Perawatan</th>
+                    <th width="10%">Harga</th>
+                    <th width="10%">Total</th>
                 </tr>
-                <tr>
-                    <td><strong>Pelanggan</strong></td>
-                    <td><?= safeOutput($item->namapelanggan) ?></td>
-                    <td><strong>Status</strong></td>
-                    <td><?= getStatusLabel($item->status) ?></td>
-                </tr>
-                <tr>
-                    <td><strong>Hewan</strong></td>
-                    <td><?= safeOutput($item->namahewan) ?></td>
-                    <td><strong>Grand Total</strong></td>
-                    <td>Rp <?= number_format($item->grandtotal, 0, ',', '.') ?></td>
-                </tr>
-            </table>
-
-            <div class="detail-header">Detail Layanan</div>
-            <table class="data-table">
-                <thead>
+            </thead>
+            <tbody>
+                <?php
+                $no = 1;
+                $totalSeluruh = 0;
+                foreach ($perawatan as $item) :
+                    $totalSeluruh += $item->grandtotal;
+                ?>
                     <tr>
-                        <th width="5%">No</th>
-                        <th width="15%">Kode Fasilitas</th>
-                        <th width="30%">Nama Fasilitas</th>
-                        <th width="15%">Kategori</th>
-                        <th width="10%">Jumlah</th>
-                        <th width="12%">Harga</th>
-                        <th width="13%">Total</th>
+                        <td class="text-center"><?= $no++ ?></td>
+                        <td><?= safeOutput($item->kdperawatan) ?></td>
+                        <td><?= safeOutput($item->namapelanggan) ?></td>
+                        <td><?= safeOutput($item->kdhewan) ?></td>
+                        <td><?= safeOutput($item->namahewan) ?></td>
+                        <td><?= date('Y-m-d', strtotime($item->tglperawatan)) ?></td>
+                        <td><?= date('H:i', strtotime($item->created_at ?? $item->tglperawatan)) ?></td>
+                        <td class="text-right">Rp <?= number_format($item->grandtotal, 0, ',', '.') ?></td>
+                        <td class="text-right">Rp <?= number_format($item->grandtotal, 0, ',', '.') ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $no = 1;
-                    $totalSeluruh = 0;
-                    foreach ($details as $detail) :
-                        $totalSeluruh += $detail['totalharga'];
-                    ?>
-                        <tr>
-                            <td class="text-center"><?= $no++ ?></td>
-                            <td><?= safeOutput($detail['kdfasilitas']) ?></td>
-                            <td><?= safeOutput($detail['namafasilitas']) ?></td>
-                            <td><?= safeOutput($detail['kategori']) ?></td>
-                            <td class="text-center"><?= $detail['jumlah'] ?></td>
-                            <td class="text-right">Rp <?= number_format($detail['harga'], 0, ',', '.') ?></td>
-                            <td class="text-right">Rp <?= number_format($detail['totalharga'], 0, ',', '.') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <tr class="total-row">
-                        <th colspan="6" class="text-right">TOTAL</th>
-                        <th class="text-right">Rp <?= number_format($totalSeluruh, 0, ',', '.') ?></th>
-                    </tr>
-                </tbody>
-            </table>
-        <?php else : ?>
-            <!-- Tampilan untuk cetak laporan keseluruhan -->
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th width="5%">No</th>
-                        <th width="10%">Kode</th>
-                        <th width="10%">Tanggal</th>
-                        <th width="20%">Pelanggan</th>
-                        <th width="20%">Hewan</th>
-                        <th width="10%">Status</th>
-                        <th width="15%">Grand Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $no = 1;
-                    $totalSeluruh = 0;
-                    foreach ($perawatan as $item) :
-                        $totalSeluruh += $item->grandtotal;
-                    ?>
-                        <tr class="main-row">
-                            <td class="text-center"><?= $no++ ?></td>
-                            <td><?= safeOutput($item->kdperawatan) ?></td>
-                            <td><?= date('d-m-Y', strtotime($item->tglperawatan)) ?></td>
-                            <td><?= safeOutput($item->namapelanggan) ?></td>
-                            <td><?= safeOutput($item->namahewan) ?></td>
-                            <td class="text-center">
-                                <?php if ($item->status == 0) : ?>
-                                    <span class="status-pending">Menunggu</span>
-                                <?php elseif ($item->status == 1) : ?>
-                                    <span class="status-proses">Dalam Proses</span>
-                                <?php else : ?>
-                                    <span class="status-selesai">Selesai</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-right">Rp <?= number_format($item->grandtotal, 0, ',', '.') ?></td>
-                        </tr>
-
-                        <?php if (isset($filter['compact_view']) && $filter['compact_view'] && !empty($item->detail)) : ?>
-                            <tr>
-                                <td colspan="7" style="padding: 0;">
-                                    <table class="nested-table">
-                                        <thead>
-                                            <tr>
-                                                <th width="5%">No</th>
-                                                <th width="15%">Kode Fasilitas</th>
-                                                <th width="30%">Nama Fasilitas</th>
-                                                <th width="15%">Kategori</th>
-                                                <th width="10%">Jumlah</th>
-                                                <th width="12%">Harga</th>
-                                                <th width="13%">Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            $noDetail = 1;
-                                            $subtotal = 0;
-                                            foreach ($item->detail as $detail) :
-                                                $subtotal += $detail['totalharga'];
-                                            ?>
-                                                <tr>
-                                                    <td class="text-center"><?= $noDetail++ ?></td>
-                                                    <td><?= safeOutput($detail['detailkdfasilitas']) ?></td>
-                                                    <td><?= safeOutput($detail['namafasilitas']) ?></td>
-                                                    <td><?= safeOutput($detail['kategori']) ?></td>
-                                                    <td class="text-center"><?= $detail['jumlah'] ?></td>
-                                                    <td class="text-right">Rp <?= number_format($detail['harga'], 0, ',', '.') ?></td>
-                                                    <td class="text-right">Rp <?= number_format($detail['totalharga'], 0, ',', '.') ?></td>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                            <tr class="nested-row">
-                                                <td colspan="6" class="text-right">Subtotal</td>
-                                                <td class="text-right">Rp <?= number_format($subtotal, 0, ',', '.') ?></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                    <tr class="total-row">
-                        <th colspan="6" class="text-right">TOTAL</th>
-                        <th class="text-right">Rp <?= number_format($totalSeluruh, 0, ',', '.') ?></th>
-                    </tr>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                <?php endforeach; ?>
+                <tr class="total-row">
+                    <th colspan="7" class="text-right">TOTAL</th>
+                    <th colspan="2" class="text-right">Rp <?= number_format($totalSeluruh, 0, ',', '.') ?></th>
+                </tr>
+            </tbody>
+        </table>
     <?php endif; ?>
 
     <div class="footer">
-        <p><?= $kota ?>, <?= $tanggal_ttd ?></p>
+        <p>Padang, <?= date('Y-m-d') ?></p>
         <br><br><br>
         <p><strong><?= $admin ?></strong></p>
     </div>

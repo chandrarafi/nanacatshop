@@ -28,7 +28,21 @@ class BarangController extends BaseController
     {
         $title = 'Tambah Barang';
         $kategori = $this->kategoriModel->findAll();
-        return view('admin/barang/create', compact('title', 'kategori'));
+        $satuan = [
+            'Pcs',
+            'Box',
+            'Kg',
+            'Gram',
+            'Botol',
+            'Sachet',
+            'Pack',
+            'Lusin',
+            'Kodi',
+            'Rim',
+            'Roll',
+            'Meter'
+        ];
+        return view('admin/barang/create', compact('title', 'kategori', 'satuan'));
     }
 
     public function edit($id = null)
@@ -41,7 +55,21 @@ class BarangController extends BaseController
         }
 
         $kategori = $this->kategoriModel->findAll();
-        return view('admin/barang/edit', compact('title', 'barang', 'kategori'));
+        $satuan = [
+            'Pcs',
+            'Box',
+            'Kg',
+            'Gram',
+            'Botol',
+            'Sachet',
+            'Pack',
+            'Lusin',
+            'Kodi',
+            'Rim',
+            'Roll',
+            'Meter'
+        ];
+        return view('admin/barang/edit', compact('title', 'barang', 'kategori', 'satuan'));
     }
 
     public function getBarang()
@@ -49,7 +77,7 @@ class BarangController extends BaseController
         $kategoriFilter = $this->request->getGet('kdkategori') ?? '';
 
         $builder = $this->barangModel->builder();
-        $builder->select('barang.kdbarang, barang.namabarang, barang.jumlah, barang.hargabeli, barang.hargajual, barang.foto, kategori.namakategori');
+        $builder->select('barang.kdbarang, barang.namabarang, barang.jumlah, barang.hargabeli, barang.hargajual, barang.foto, barang.satuan, kategori.namakategori');
         $builder->join('kategori', 'kategori.kdkategori = barang.kdkategori', 'left');
 
         if (!empty($kategoriFilter)) {

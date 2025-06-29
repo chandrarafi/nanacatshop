@@ -49,6 +49,11 @@
                                                 <td>:</td>
                                                 <td><?= $barang['jumlah'] ?></td>
                                             </tr>
+                                            <tr>
+                                                <td class="fw-bold">Satuan</td>
+                                                <td>:</td>
+                                                <td><?= $barang['satuan'] ?? '-' ?></td>
+                                            </tr>
                                         </table>
                                     </div>
                                     <div class="col-md-6">

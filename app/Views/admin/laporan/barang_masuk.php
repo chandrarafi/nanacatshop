@@ -144,8 +144,7 @@
 </div>
 
 <!-- Detail Modal -->
-<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="
-ModalLabel" aria-hidden="true">
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -155,40 +154,6 @@ ModalLabel" aria-hidden="true">
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th>Kode Masuk</th>
-                                <td>: <span id="detail_kdmasuk"></span></td>
-                            </tr>
-                            <tr>
-                                <th>Tanggal Masuk</th>
-                                <td>: <span id="detail_tglmasuk"></span></td>
-                            </tr>
-                            <tr>
-                                <th>Supplier</th>
-                                <td>: <span id="detail_supplier"></span></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless">
-                            <tr>
-                                <th>Grand Total</th>
-                                <td>: <span id="detail_grandtotal"></span></td>
-                            </tr>
-                            <tr>
-                                <th>Status</th>
-                                <td>: <span id="detail_status"></span></td>
-                            </tr>
-                            <tr>
-                                <th>Keterangan</th>
-                                <td>: <span id="detail_keterangan"></span></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
                 <h6 class="font-weight-bold">Detail Barang</h6>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="detailTable" width="100%" cellspacing="0">
@@ -197,10 +162,10 @@ ModalLabel" aria-hidden="true">
                                 <th>No</th>
                                 <th>Kode Barang</th>
                                 <th>Nama Barang</th>
-                                <th>Kategori</th>
+                                <th>Satuan</th>
                                 <th>Jumlah</th>
                                 <th>Harga</th>
-                                <th>Total</th>
+                                <th>Supplier</th>
                             </tr>
                         </thead>
                         <tbody id="detail_items">
@@ -368,14 +333,9 @@ ModalLabel" aria-hidden="true">
     }
 
     function showDetail(kdmasuk, item) {
-        // Set header information
-        document.getElementById('detail_kdmasuk').textContent = item.kdmasuk;
-        document.getElementById('detail_tglmasuk').textContent = new Date(item.tglmasuk).toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-        document.getElementById('detail_supplier').textContent = item.namaspl;
+        // Detail items
+        const detailItems = document.getElementById('detail_items');
+        detailItems.innerHTML = '';
 
         // Format currency
         const formatter = new Intl.NumberFormat('id-ID', {
@@ -384,19 +344,6 @@ ModalLabel" aria-hidden="true">
             minimumFractionDigits: 0
         });
 
-        document.getElementById('detail_grandtotal').textContent = formatter.format(item.grandtotal);
-
-        // Status
-        let statusText = item.status == 0 ? 'Pending' : 'Selesai';
-        let statusClass = item.status == 0 ? 'warning' : 'success';
-        document.getElementById('detail_status').innerHTML = `${statusText}`;
-
-        document.getElementById('detail_keterangan').textContent = item.keterangan || '-';
-
-        // Detail items
-        const detailItems = document.getElementById('detail_items');
-        detailItems.innerHTML = '';
-
         if (item.detail && item.detail.length > 0) {
             item.detail.forEach((detail, index) => {
                 const tr = document.createElement('tr');
@@ -404,10 +351,10 @@ ModalLabel" aria-hidden="true">
                     <td>${index + 1}</td>
                     <td>${detail.detailkdbarang}</td>
                     <td>${detail.namabarang}</td>
-                    <td>${detail.namakategori}</td>
+                    <td>${detail.satuan || '-'}</td>
                     <td>${detail.jumlah}</td>
                     <td>${formatter.format(detail.harga)}</td>
-                    <td>${formatter.format(detail.totalharga)}</td>
+                    <td>${item.namaspl}</td>
                 `;
                 detailItems.appendChild(tr);
             });
@@ -424,6 +371,7 @@ ModalLabel" aria-hidden="true">
     function cetakPDF() {
         const formData = new FormData(document.getElementById('filterForm'));
         const queryParams = new URLSearchParams();
+        const filterType = document.getElementById('filter_type').value;
 
         for (const pair of formData.entries()) {
             if (pair[1]) {
@@ -431,7 +379,18 @@ ModalLabel" aria-hidden="true">
             }
         }
 
-        const url = '<?= site_url('admin/laporan/barang-masuk/cetak') ?>?' + queryParams.toString();
+        let url;
+        if (filterType === 'bulan') {
+            // Jika filter berdasarkan bulan, gunakan endpoint laporan perbulan
+            url = '<?= site_url('admin/laporan/barang-masuk-perbulan/cetak') ?>?' + queryParams.toString();
+        } else if (filterType === 'tahun') {
+            // Jika filter berdasarkan tahun, gunakan endpoint laporan pertahun
+            url = '<?= site_url('admin/laporan/barang-masuk-pertahun/cetak') ?>?' + queryParams.toString();
+        } else {
+            // Untuk filter lainnya, gunakan endpoint laporan biasa
+            url = '<?= site_url('admin/laporan/barang-masuk/cetak') ?>?' + queryParams.toString();
+        }
+
         window.open(url, '_blank');
     }
 

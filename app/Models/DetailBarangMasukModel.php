@@ -108,7 +108,7 @@ class DetailBarangMasukModel extends Model
     public function getDetailWithBarang($kdmasuk)
     {
         $builder = $this->db->table('detailbarangmasuk d');
-        $builder->select('d.*, b.namabarang, b.kdkategori, k.namakategori');
+        $builder->select('d.*, b.namabarang, b.kdkategori, b.satuan, k.namakategori');
         $builder->join('barang b', 'b.kdbarang = d.detailkdbarang', 'left');
         $builder->join('kategori k', 'k.kdkategori = b.kdkategori', 'left');
         $builder->where('d.detailkdmasuk', $kdmasuk);

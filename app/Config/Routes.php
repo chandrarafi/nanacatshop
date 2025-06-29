@@ -28,50 +28,79 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
 // Laporan Routes
 $routes->group('admin/laporan', ['filter' => 'auth'], function ($routes) {
+    // Pelanggan
     $routes->get('pelanggan', 'LaporanController::pelanggan');
     $routes->get('pelanggan/data', 'LaporanController::getPelangganData');
     $routes->get('pelanggan/cetak', 'LaporanController::cetakPelangganPdf');
 
+    // Hewan
     $routes->get('hewan', 'LaporanController::hewan');
     $routes->get('hewan/data', 'LaporanController::getHewanData');
     $routes->get('hewan/pelanggan', 'LaporanController::getPelangganList');
     $routes->get('hewan/cetak', 'LaporanController::cetakHewanPdf');
 
+    // Barang
     $routes->get('barang', 'LaporanController::barang');
     $routes->get('barang/data', 'LaporanController::getBarangData');
     $routes->get('barang/kategori', 'LaporanController::getKategoriList');
     $routes->get('barang/cetak', 'LaporanController::cetakBarangPdf');
 
+    // Fasilitas
     $routes->get('fasilitas', 'LaporanController::fasilitas');
     $routes->get('fasilitas/data', 'LaporanController::getFasilitasData');
     $routes->get('fasilitas/kategori', 'LaporanController::getKategoriFasilitas');
     $routes->get('fasilitas/cetak', 'LaporanController::cetakFasilitasPdf');
 
+    // Supplier
     $routes->get('supplier', 'LaporanController::supplier');
     $routes->get('supplier/data', 'LaporanController::getSupplierData');
     $routes->get('supplier/cetak', 'LaporanController::cetakSupplierPdf');
 
+    // Barang Masuk
     $routes->get('barang-masuk', 'LaporanController::barangMasuk');
     $routes->get('barang-masuk/data', 'LaporanController::getBarangMasukData');
     $routes->get('barang-masuk/supplier', 'LaporanController::getSupplierList');
     $routes->get('barang-masuk/cetak', 'LaporanController::cetakBarangMasukPdf');
-    $routes->get('barang-masuk/cetak/(:segment)', 'LaporanController::cetakDetailBarangMasuk/$1');
+    $routes->get('barang-masuk/detail/(:segment)', 'LaporanController::cetakDetailBarangMasuk/$1');
 
+    // Barang Masuk Perbulan
+    $routes->get('barang-masuk-perbulan/data', 'LaporanController::getBarangMasukPerbulanData');
+    $routes->get('barang-masuk-perbulan/cetak', 'LaporanController::cetakBarangMasukPerbulanPdf');
+
+    // Barang Masuk Pertahun
+    $routes->get('barang-masuk-pertahun/data', 'LaporanController::getBarangMasukPertahunData');
+    $routes->get('barang-masuk-pertahun/cetak', 'LaporanController::cetakBarangMasukPertahunPdf');
+
+    // Penjualan
     $routes->get('penjualan', 'LaporanController::penjualan');
-    $routes->get('penjualan-data', 'LaporanController::getPenjualanData');
-    $routes->get('pelanggan-list', 'LaporanController::getPelangganList');
+    $routes->get('penjualan/data', 'LaporanController::getPenjualanData');
     $routes->get('penjualan/cetak', 'LaporanController::cetakPenjualanPdf');
-    $routes->get('penjualan/cetak/(:segment)', 'LaporanController::cetakDetailPenjualan/$1');
+    $routes->get('penjualan/detail/(:segment)', 'LaporanController::cetakDetailPenjualan/$1');
+    $routes->get('penjualan/pelanggan', 'LaporanController::getPelangganList');
+    $routes->get('penjualan/pelanggan-modal', 'LaporanController::getPelangganForModal');
+    $routes->get('penjualan/perbulan/data', 'LaporanController::getPenjualanPerbulanData');
+    $routes->get('penjualan/perbulan/cetak', 'LaporanController::cetakPenjualanPerbulanPdf');
+    $routes->get('penjualan/pertahun/data', 'LaporanController::getPenjualanPertahunData');
+    $routes->get('penjualan/pertahun/cetak', 'LaporanController::cetakPenjualanPertahunPdf');
+    // Backward compatibility
+    $routes->get('penjualan-perbulan/data', 'LaporanController::getPenjualanPerbulanData');
+    $routes->get('penjualan-perbulan/cetak', 'LaporanController::cetakPenjualanPerbulanPdf');
+    $routes->get('penjualan-pertahun/data', 'LaporanController::getPenjualanPertahunData');
+    $routes->get('penjualan-pertahun/cetak', 'LaporanController::cetakPenjualanPertahunPdf');
 
+    // Penitipan
     $routes->get('penitipan', 'LaporanController::penitipan');
-    $routes->get('penitipan-data', 'LaporanController::getPenitipanData');
+    $routes->get('penitipan/data', 'LaporanController::getPenitipanData');
     $routes->get('penitipan/cetak', 'LaporanController::cetakPenitipanPdf');
-    $routes->get('penitipan/cetak/(:segment)', 'LaporanController::cetakDetailPenitipan/$1');
+    $routes->get('penitipan/detail/(:segment)', 'LaporanController::cetakDetailPenitipan/$1');
+    $routes->get('penitipan/pelanggan-modal', 'LaporanController::getPelangganForModal');
 
+    // Perawatan
     $routes->get('perawatan', 'LaporanController::perawatan');
-    $routes->get('perawatan-data', 'LaporanController::getPerawatanData');
+    $routes->get('perawatan/data', 'LaporanController::getPerawatanData');
     $routes->get('perawatan/cetak', 'LaporanController::cetakPerawatanPdf');
-    $routes->get('perawatan/cetak/(:segment)', 'LaporanController::cetakDetailPerawatan/$1');
+    $routes->get('perawatan/detail/(:segment)', 'LaporanController::cetakDetailPerawatan/$1');
+    $routes->get('pelanggan/list', 'LaporanController::getPelangganForModal');
 });
 
 // Pelanggan routes

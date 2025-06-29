@@ -35,6 +35,11 @@ class CreateBarangTable extends Migration
                 'type'       => 'DOUBLE',
                 'default'    => 0,
             ],
+            'satuan' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 20,
+                'null'       => true,
+            ],
             'kdkategori' => [
                 'type'       => 'CHAR',
                 'constraint' => 7,

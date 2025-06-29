@@ -163,6 +163,7 @@
                              <span>Laporan Barang Masuk</span>
                          </a>
                      </li>
+
                      <li class="nav-item">
                          <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/penjualan') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/penjualan') ?>">
                              <i class="bi bi-cart"></i>
