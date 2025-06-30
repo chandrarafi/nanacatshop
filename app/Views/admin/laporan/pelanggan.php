@@ -81,12 +81,14 @@
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script>
     $(document).ready(function() {
         // Inisialisasi date picker
-        $(".datepicker").flatpickr({
+        flatpickr(".datepicker", {
             dateFormat: "Y-m-d",
-            allowInput: true
+            allowInput: true,
+            locale: "id"
         });
 
         // Fungsi untuk memuat data
