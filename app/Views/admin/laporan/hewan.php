@@ -27,12 +27,12 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Filter Laporan</h5>
+                <h5 class="mb-0">Aksi Laporan</h5>
             </div>
             <div class="card-body">
                 <form id="form-filter">
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <!-- <div class="col-md-6">
                             <label class="form-label">Jenis Hewan</label>
                             <select class="form-select" name="jenis" id="jenis">
                                 <option value="">Semua</option>
@@ -49,8 +49,8 @@
                                 <option value="Angora">Angora</option>
                                 <option value="Himalayan">Himalayan</option>
                             </select>
-                        </div>
-                        <div class="col-md-6">
+                        </div> -->
+                        <!-- <div class="col-md-6">
                             <label class="form-label">Pemilik</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="nama-pemilik" placeholder="Pilih Pemilik" readonly>
@@ -62,25 +62,25 @@
                                     <i class="bi bi-x"></i>
                                 </button>
                             </div>
-                        </div>
-                        <div class="col-md-6">
+                        </div> -->
+                        <!-- <div class="col-md-6">
                             <label class="form-label">Tanggal Awal</label>
                             <input type="text" class="form-control datepicker" name="tgl_awal" id="tgl_awal" placeholder="Pilih Tanggal Awal">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Tanggal Akhir</label>
                             <input type="text" class="form-control datepicker" name="tgl_akhir" id="tgl_akhir" placeholder="Pilih Tanggal Akhir">
-                        </div>
+                        </div> -->
                         <div class="col-12 text-end">
-                            <button type="button" class="btn btn-primary" id="btn-filter">
+                            <!-- <button type="button" class="btn btn-primary" id="btn-filter">
                                 <i class="bi bi-search"></i> Filter
-                            </button>
+                            </button> -->
                             <button type="button" class="btn btn-success" id="btn-cetak">
                                 <i class="bi bi-printer"></i> Cetak PDF
-                            </button>
+                                <!-- </button>
                             <button type="button" class="btn btn-secondary" id="btn-reset">
                                 <i class="bi bi-arrow-counterclockwise"></i> Reset
-                            </button>
+                            </button> -->
                         </div>
                     </div>
                 </form>

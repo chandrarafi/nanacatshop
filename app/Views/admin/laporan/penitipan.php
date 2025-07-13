@@ -25,7 +25,7 @@
                                             <option value="tahun">Berdasarkan Tahun</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-3" hidden>
                                         <label for="idpelanggan">Pelanggan</label>
                                         <div class="input-group">
                                             <input type="hidden" id="idpelanggan" name="idpelanggan">
@@ -40,7 +40,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-4 mb-3" hidden>
                                         <label for="status">Status</label>
                                         <select class="form-control" id="status" name="status">
                                             <option value="">Semua Status</option>
