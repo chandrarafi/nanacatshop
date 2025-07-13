@@ -9,12 +9,12 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Filter Laporan</h5>
+                <h5 class="mb-0">Aksi Laporan</h5>
             </div>
             <div class="card-body">
                 <form id="form-filter">
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <!-- <div class="col-md-4">
                             <label class="form-label">Jenis Kelamin</label>
                             <select class="form-select" name="jenkel" id="jenkel">
                                 <option value="">Semua</option>
@@ -29,17 +29,17 @@
                         <div class="col-md-4">
                             <label class="form-label">Tanggal Akhir</label>
                             <input type="text" class="form-control datepicker" name="tgl_akhir" id="tgl_akhir" placeholder="Pilih Tanggal Akhir">
-                        </div>
+                        </div> -->
                         <div class="col-12 text-end">
-                            <button type="button" class="btn btn-primary" id="btn-filter">
+                            <!-- <button type="button" class="btn btn-primary" id="btn-filter">
                                 <i class="bi bi-search"></i> Filter
-                            </button>
+                            </button> -->
                             <button type="button" class="btn btn-success" id="btn-cetak">
                                 <i class="bi bi-printer"></i> Cetak PDF
                             </button>
-                            <button type="button" class="btn btn-secondary" id="btn-reset">
+                            <!-- <button type="button" class="btn btn-secondary" id="btn-reset">
                                 <i class="bi bi-arrow-counterclockwise"></i> Reset
-                            </button>
+                            </button> -->
                         </div>
                     </div>
                 </form>

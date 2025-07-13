@@ -56,8 +56,8 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="idpelanggan">Pelanggan</label>
-                                        <div class="input-group">
+                                        <!-- <label for="idpelanggan">Pelanggan</label> -->
+                                        <div class="input-group" hidden>
                                             <input type="hidden" id="idpelanggan" name="idpelanggan">
                                             <input type="text" class="form-control" id="nama_pelanggan" placeholder="Semua Pelanggan" readonly>
                                             <div class="input-group-append">
@@ -71,8 +71,8 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="status">Status</label>
-                                        <select class="form-control" id="status" name="status">
+                                        <!-- <label for="status">Status</label> -->
+                                        <select class="form-control" id="status" name="status" hidden>
                                             <option value="">Semua Status</option>
                                             <option value="0">Pending</option>
                                             <option value="1">Selesai</option>

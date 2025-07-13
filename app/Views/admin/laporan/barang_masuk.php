@@ -26,15 +26,14 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="kdspl">Supplier</label>
-                                        <select class="form-control" id="kdspl" name="kdspl">
+                                        <!-- <label for="kdspl">Supplier</label> -->
+                                        <select class="form-control" id="kdspl" name="kdspl" hidden>
                                             <option value="">Semua Supplier</option>
-                                            <!-- Options will be loaded via AJAX -->
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="status">Status</label>
-                                        <select class="form-control" id="status" name="status">
+                                        <!-- <label for="status">Status</label> -->
+                                        <select class="form-control" id="status" name="status" hidden>
                                             <option value="">Semua Status</option>
                                             <option value="0">Pending</option>
                                             <option value="1">Selesai</option>
