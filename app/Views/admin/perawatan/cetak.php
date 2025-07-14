@@ -107,7 +107,7 @@
     <div class="container">
         <div class="header">
             <h2>NANA CAT SHOP</h2>
-            <p>Jl. Kucing Manis No. 123, Kota Meong</p>
+            <p>Jl. Bandar Olo No.42, Padang Barat, Kota Padang</p>
             <p>Telp: (021) 1234-5678 | Email: info@nanacatshop.com</p>
             <hr>
             <h3>FAKTUR PERAWATAN HEWAN</h3>
