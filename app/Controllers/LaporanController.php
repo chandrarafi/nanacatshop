@@ -111,7 +111,7 @@ class LaporanController extends BaseController
                 'tgl_awal' => $tglAwal,
                 'tgl_akhir' => $tglAkhir
             ],
-            'tanggal_cetak' => date('d-m-Y H:i:s'),
+            'tanggal_cetak' => date('d-m-Y'),
             'logo' => $logoData
         ];
 
@@ -253,7 +253,7 @@ class LaporanController extends BaseController
                 'tgl_awal' => $tglAwal,
                 'tgl_akhir' => $tglAkhir
             ],
-            'tanggal_cetak' => date('d-m-Y H:i:s'),
+            'tanggal_cetak' => date('d-m-Y'),
             'logo' => $logoData
         ];
 
@@ -415,7 +415,7 @@ class LaporanController extends BaseController
                 'tgl_awal' => $tglAwal,
                 'tgl_akhir' => $tglAkhir
             ],
-            'tanggal_cetak' => date('d-m-Y H:i:s'),
+            'tanggal_cetak' => date('d-m-Y'),
             'logo' => $logoData
         ];
 
@@ -530,7 +530,7 @@ class LaporanController extends BaseController
                 'tgl_awal' => $tglAwal,
                 'tgl_akhir' => $tglAkhir
             ],
-            'tanggal_cetak' => date('d-m-Y H:i:s'),
+            'tanggal_cetak' => date('d-m-Y'),
             'logo' => $logoData
         ];
 
@@ -640,7 +640,7 @@ class LaporanController extends BaseController
                 'tgl_awal' => $tglAwal,
                 'tgl_akhir' => $tglAkhir
             ],
-            'tanggal_cetak' => date('d-m-Y H:i:s'),
+            'tanggal_cetak' => date('d-m-Y'),
             'logo' => $logoData
         ];
 

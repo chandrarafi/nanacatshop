@@ -188,7 +188,7 @@
     <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
         <div style="text-align: center; margin-bottom: 20px;">
             <h2 style="margin-bottom: 5px;">NANA CAT SHOP</h2>
-            <p style="margin: 0;">Jl. Kucing Manis No. 123, Kota Meong</p>
+            <p style="margin: 0;">Jl. Bandar Olo No.42, Padang Barat, Kota Padang</p>
             <p style="margin: 0;">Telp: (021) 1234-5678 | Email: info@nanacatshop.com</p>
             <hr style="border-top: 2px solid #000; margin: 10px 0;">
             <h3>FAKTUR PENITIPAN HEWAN</h3>
