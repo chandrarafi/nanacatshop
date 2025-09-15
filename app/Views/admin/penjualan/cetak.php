@@ -112,7 +112,7 @@
         <b>NANA CAT SHOP</b><br>
         Toko Perlengkapan Kucing dan Anjing<br>
         Jl. Raya Contoh No. 123, Kota<br>
-        Telp: 021-1234567
+        Telp: +6282285214024
     </div>
 
     <div class="dotted-line"></div>
