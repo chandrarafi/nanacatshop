@@ -119,7 +119,7 @@ class FasilitasModel extends Model
     public function getWithKategori()
     {
         $builder = $this->db->table('fasilitas');
-        $builder->select('*');
+        $builder->select('*')->where('kategori', 'kandang')->orWhere('kategori', 'makanan');
         return $builder->get()->getResultArray();
     }
     public function getWithKategoriPerawatan()
