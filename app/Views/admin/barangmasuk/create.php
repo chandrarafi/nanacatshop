@@ -1,5 +1,4 @@
 <?= $this->extend('admin/layouts/main') ?>
-
 <?= $this->section('content') ?>
 <div class="page-heading">
     <div class="page-title">
@@ -19,7 +18,6 @@
             </div>
         </div>
     </div>
-
     <section class="section">
         <div class="card">
             <div class="card-header">
@@ -69,11 +67,9 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="divider">
                         <div class="divider-text">Detail Barang</div>
                     </div>
-
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <button type="button" class="btn btn-primary btn-sm" id="btn-tambah-barang">
@@ -81,7 +77,6 @@
                             </button>
                         </div>
                     </div>
-
                     <div class="table-responsive">
                         <table class="table table-bordered" id="table-detail">
                             <thead>
@@ -109,7 +104,6 @@
                             </tfoot>
                         </table>
                     </div>
-
                     <div class="row mt-4">
                         <div class="col-12 d-flex justify-content-end">
                             <a href="<?= site_url('admin/barangmasuk') ?>" class="btn btn-secondary me-2">Batal</a>
@@ -121,7 +115,6 @@
         </div>
     </section>
 </div>
-
 <!-- Modal Pilih Barang -->
 <div class="modal fade" id="modalPilihBarang" tabindex="-1" role="dialog" aria-labelledby="modalPilihBarangLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -169,7 +162,6 @@
         </div>
     </div>
 </div>
-
 <!-- Modal Pilih Supplier -->
 <div class="modal fade" id="modalPilihSupplier" tabindex="-1" role="dialog" aria-labelledby="modalPilihSupplierLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -217,7 +209,6 @@
     </div>
 </div>
 <?= $this->endSection() ?>
-
 <?= $this->section('scripts') ?>
 <script>
     $(document).ready(function() {
@@ -244,11 +235,10 @@
             $('#modalPilihSupplier').modal('show');
         });
 
-        // Pilih supplier dari modal
-        $('.btn-pilih-supplier').click(function() {
+        // Pilih supplier dari modal - menggunakan event delegation
+        $(document).on('click', '.btn-pilih-supplier', function() {
             const kdspl = $(this).data('id');
             const namaspl = $(this).data('nama');
-
             $('#kdspl').val(kdspl);
             $('#namaspl').val(namaspl);
             $('#modalPilihSupplier').modal('hide');
@@ -259,8 +249,8 @@
             $('#modalPilihBarang').modal('show');
         });
 
-        // Pilih barang
-        $('.btn-pilih-barang').click(function() {
+        // Pilih barang - menggunakan event delegation
+        $(document).on('click', '.btn-pilih-barang', function() {
             const kdbarang = $(this).data('id');
             const namabarang = $(this).data('nama');
             const hargabeli = $(this).data('harga');
@@ -280,7 +270,6 @@
 
             // Add row
             let rowCount = $('#table-detail tbody tr').not('#row-empty').length;
-
             let newRow = `
                 <tr id="row-${kdbarang}">
                     <td>${rowCount + 1}</td>
@@ -309,7 +298,6 @@
             $('#table-detail tbody').append(newRow);
             hitungGrandTotal();
             $('#modalPilihBarang').modal('hide');
-
             // Reorder numbers setelah menambah barang
             renumberRows();
         });
@@ -318,7 +306,6 @@
         $(document).on('click', '.btn-hapus-barang', function() {
             const kdbarang = $(this).data('id');
             $(`#row-${kdbarang}`).remove();
-
             // Show empty row if no items
             if ($('#table-detail tbody tr').not('#row-empty').length === 0) {
                 $('#row-empty').show();
@@ -326,7 +313,6 @@
                 // Reorder numbers
                 renumberRows();
             }
-
             hitungGrandTotal();
         });
 
@@ -345,10 +331,8 @@
             const jumlah = parseInt(row.find('.jumlah').val()) || 0;
             const harga = parseFloat(row.find('.harga').val()) || 0;
             const total = jumlah * harga;
-
             row.find('.total-harga').text('Rp ' + formatRupiah(total));
             row.find('.total-input').val(total);
-
             hitungGrandTotal();
         });
 
@@ -358,7 +342,6 @@
             $('.total-input').each(function() {
                 grandTotal += parseFloat($(this).val()) || 0;
             });
-
             $('#grand-total').text('Rp ' + formatRupiah(grandTotal));
             $('input[name="grandtotal"]').remove();
             $('#form-barangmasuk').append(`<input type="hidden" name="grandtotal" value="${grandTotal}">`);
@@ -372,7 +355,6 @@
         // Form submit
         $('#form-barangmasuk').submit(function(e) {
             e.preventDefault();
-
             // Validasi
             if ($('#table-detail tbody tr').not('#row-empty').length === 0) {
                 Swal.fire({
