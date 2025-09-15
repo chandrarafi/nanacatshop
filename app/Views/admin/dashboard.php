@@ -377,8 +377,7 @@
                             <label for="taskAssignee" class="form-label">Ditugaskan Kepada</label>
                             <select class="form-select" id="taskAssignee">
                                 <option selected>Admin</option>
-                                <option>Manager</option>
-                                <option>User</option>
+                                <option>Pimpinan</option>
                             </select>
                         </div>
                         <div class="col-md-6">

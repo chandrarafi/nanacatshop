@@ -184,7 +184,7 @@
                 <button class="px-4 py-2 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white transition duration-300 filter-btn active hover-scale" data-filter="all">Semua</button>
                 <?php
                 $delay = 150;
-                foreach ($kategori as $kat):
+                foreach ($kategori_filter as $kat):
                     $delay += 50;
                 ?>
                     <button class="px-4 py-2 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white transition duration-300 filter-btn hover-scale" data-filter="<?= $kat['kdkategori'] ?>" data-aos="fade-up" data-aos-delay="<?= $delay ?>"><?= $kat['namakategori'] ?></button>
@@ -284,13 +284,13 @@
                             <div class="bg-primary p-3 rounded-full mr-4">
                                 <i class="fas fa-map-marker-alt text-white"></i>
                             </div>
-                            <span class="text-gray-700 mt-1">Jl. Kucing Manis No. 123, Kota Meong</span>
+                            <span class="text-gray-700 mt-1">Jl. Bandar Olo no.42, Padang Barat, Kota Padang</span>
                         </div>
                         <div class="flex items-start" data-aos="fade-up" data-aos-delay="200">
                             <div class="bg-primary p-3 rounded-full mr-4">
                                 <i class="fas fa-phone text-white"></i>
                             </div>
-                            <span class="text-gray-700 mt-1">+62 812-3456-7890</span>
+                            <span class="text-gray-700 mt-1">+6282285214024</span>
                         </div>
                         <div class="flex items-start" data-aos="fade-up" data-aos-delay="300">
                             <div class="bg-primary p-3 rounded-full mr-4">

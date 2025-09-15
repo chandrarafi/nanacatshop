@@ -68,7 +68,7 @@ class UserModel extends Model
                 ]
             ],
             'role' => [
-                'rules' => 'required|in_list[admin,manager,user]',
+                'rules' => 'required|in_list[admin,pimpinan,user]',
                 'errors' => [
                     'required' => 'Role harus dipilih',
                     'in_list' => 'Role tidak valid'

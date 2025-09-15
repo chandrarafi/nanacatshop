@@ -51,7 +51,7 @@ class Admin extends BaseController
 
                 if ($value === 'admin') {
                     $badgeClass = 'bg-primary';
-                } else if ($value === 'manager') {
+                } else if ($value === 'pimpinan') {
                     $badgeClass = 'bg-info';
                 } else if ($value === 'user') {
                     $badgeClass = 'bg-dark';
@@ -176,7 +176,7 @@ class Admin extends BaseController
     public function getRoles()
     {
         // Daftar role yang tersedia
-        $roles = ['admin', 'manager', 'user'];
+        $roles = ['admin', 'pimpinan', 'user'];
 
         return $this->response->setJSON([
             'status' => 'success',
