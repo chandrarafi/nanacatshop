@@ -91,4 +91,9 @@ class KategoriModel extends Model
 
         return $prefix . $date . $newSequence;
     }
+
+    public function getKategoriFilter()
+    {
+        return $this->db->table('kategori')->whereNotIn('kdkategori', ['KTG2503', 'KTG2504', 'KTG2506'])->get()->getResultArray();
+    }
 }

@@ -25,6 +25,7 @@ class LandingPage extends BaseController
             'title' => 'Nana Cat Shop - Toko dan Layanan Perawatan Kucing',
             'barang' => $this->barangModel->findAll(),
             'kategori' => $this->kategoriModel->findAll(),
+            'kategori_filter' => $this->kategoriModel->getKategoriFilter(),
             'layanan_perawatan' => $this->fasilitasModel->getWithKategoriPerawatan(),
             'layanan_penitipan' => $this->fasilitasModel->getWithKategori()
         ];
