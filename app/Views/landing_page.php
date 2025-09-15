@@ -276,66 +276,38 @@
     <section class="py-16 bg-white" id="contact">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center text-primary mb-12 relative section-title" data-aos="fade-up">Hubungi Kami</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-pink-50 rounded-xl shadow-lg p-8 border-2 border-pink-100" data-aos="fade-right" data-aos-duration="800">
-                    <h4 class="text-xl font-semibold text-primary mb-6">Informasi Kontak</h4>
-                    <div class="space-y-5">
-                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="100">
-                            <div class="bg-primary p-3 rounded-full mr-4">
-                                <i class="fas fa-map-marker-alt text-white"></i>
+            <div class="flex justify-center">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
+                    <div class="bg-pink-50 rounded-xl shadow-lg p-8 border-2 border-pink-100 md:col-span-2 mx-auto max-w-2xl" data-aos="fade-right" data-aos-duration="800">
+                        <h4 class="text-xl font-semibold text-primary mb-6 text-center">Informasi Kontak</h4>
+                        <div class="space-y-5">
+                            <div class="flex items-start" data-aos="fade-up" data-aos-delay="100">
+                                <div class="bg-primary p-3 rounded-full mr-4">
+                                    <i class="fas fa-map-marker-alt text-white"></i>
+                                </div>
+                                <span class="text-gray-700 mt-1">Jl. Bandar Olo no.42, Padang Barat, Kota Padang</span>
                             </div>
-                            <span class="text-gray-700 mt-1">Jl. Bandar Olo no.42, Padang Barat, Kota Padang</span>
-                        </div>
-                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="200">
-                            <div class="bg-primary p-3 rounded-full mr-4">
-                                <i class="fas fa-phone text-white"></i>
+                            <div class="flex items-start" data-aos="fade-up" data-aos-delay="200">
+                                <div class="bg-primary p-3 rounded-full mr-4">
+                                    <i class="fas fa-phone text-white"></i>
+                                </div>
+                                <span class="text-gray-700 mt-1">+6282285214024</span>
                             </div>
-                            <span class="text-gray-700 mt-1">+6282285214024</span>
-                        </div>
-                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="300">
-                            <div class="bg-primary p-3 rounded-full mr-4">
-                                <i class="fas fa-envelope text-white"></i>
+                            <div class="flex items-start" data-aos="fade-up" data-aos-delay="300">
+                                <div class="bg-primary p-3 rounded-full mr-4">
+                                    <i class="fas fa-envelope text-white"></i>
+                                </div>
+                                <span class="text-gray-700 mt-1">info@nanacatshop.com</span>
                             </div>
-                            <span class="text-gray-700 mt-1">info@nanacatshop.com</span>
-                        </div>
-                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="400">
-                            <div class="bg-primary p-3 rounded-full mr-4">
-                                <i class="fas fa-clock text-white"></i>
+                            <div class="flex items-start" data-aos="fade-up" data-aos-delay="400">
+                                <div class="bg-primary p-3 rounded-full mr-4">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                                <span class="text-gray-700 mt-1">Senin - Minggu: 08.00 - 20.00 WIB</span>
                             </div>
-                            <span class="text-gray-700 mt-1">Senin - Minggu: 08.00 - 20.00 WIB</span>
                         </div>
+
                     </div>
-                    <div class="mt-8 flex space-x-4" data-aos="fade-up" data-aos-delay="500">
-                        <a href="#" class="bg-primary hover:bg-secondary text-white p-3 rounded-full transition duration-300 hover-scale">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="bg-primary hover:bg-secondary text-white p-3 rounded-full transition duration-300 hover-scale">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="bg-primary hover:bg-secondary text-white p-3 rounded-full transition duration-300 hover-scale">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="bg-pink-50 rounded-xl shadow-lg p-8 border-2 border-pink-100" data-aos="fade-left" data-aos-duration="2000">
-                    <h4 class="text-xl font-semibold text-primary mb-6">Kirim Pesan</h4>
-                    <form>
-                        <div class="mb-4" data-aos="fade-up" data-aos-delay="100">
-                            <label for="name" class="block text-gray-700 mb-2">Nama</label>
-                            <input type="text" id="name" class="w-full px-4 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-300" required>
-                        </div>
-                        <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
-                            <label for="email" class="block text-gray-700 mb-2">Email</label>
-                            <input type="email" id="email" class="w-full px-4 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-300" required>
-                        </div>
-                        <div class="mb-6" data-aos="fade-up" data-aos-delay="300">
-                            <label for="message" class="block text-gray-700 mb-2">Pesan</label>
-                            <textarea id="message" rows="4" class="w-full px-4 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-300" required></textarea>
-                        </div>
-                        <div data-aos="fade-up" data-aos-delay="400">
-                            <button type="submit" class="bg-primary hover:bg-secondary text-white font-bold py-3 px-6 rounded-lg transition duration-300 w-full shadow-lg hover-scale">Kirim Pesan</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -362,20 +334,7 @@
                             <li><a href="#contact" class="text-pink-200 hover:text-white transition duration-300">Kontak</a></li>
                         </ul>
                     </div>
-                    <div data-aos="fade-up" data-aos-delay="200">
-                        <h5 class="text-lg font-semibold mb-4 text-white">Ikuti Kami</h5>
-                        <div class="flex space-x-4">
-                            <a href="#" class="bg-white/10 hover:bg-white/30 text-white p-3 rounded-full transition duration-300 hover-scale">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="bg-white/10 hover:bg-white/30 text-white p-3 rounded-full transition duration-300 hover-scale">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            <a href="#" class="bg-white/10 hover:bg-white/30 text-white p-3 rounded-full transition duration-300 hover-scale">
-                                <i class="fab fa-whatsapp"></i>
-                            </a>
-                        </div>
-                    </div>
+
                 </div>
             </div>
             <div class="border-t border-pink-400 mt-8 pt-6 text-center" data-aos="fade-up" data-aos-delay="300">
