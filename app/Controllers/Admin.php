@@ -176,7 +176,7 @@ class Admin extends BaseController
     public function getRoles()
     {
         // Daftar role yang tersedia
-        $roles = ['admin', 'pimpinan', 'user'];
+        $roles = ['admin', 'pimpinan', 'user', 'pelanggan'];
 
         return $this->response->setJSON([
             'status' => 'success',

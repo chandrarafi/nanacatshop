@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\PelangganModel;
 
 class Auth extends BaseController
 {
     protected $userModel;
+    protected $pelangganModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->pelangganModel = new PelangganModel();
         // Load helper cookie
         helper('cookie');
     }
@@ -70,10 +73,16 @@ class Auth extends BaseController
                     $this->setRememberMeCookie($user['id']);
                 }
 
+                // Redirect berdasarkan role
+                $redirectUrl = 'admin';
+                if ($user['role'] === 'pelanggan') {
+                    $redirectUrl = 'pelanggan'; // Akan dibuat route untuk dashboard pelanggan
+                }
+
                 return $this->response->setJSON([
                     'status' => 'success',
                     'message' => 'Login berhasil',
-                    'redirect' => site_url('admin')
+                    'redirect' => site_url($redirectUrl)
                 ]);
             }
         } else {
@@ -82,6 +91,45 @@ class Auth extends BaseController
         return $this->response->setJSON([
             'status' => 'error',
             'message' => 'Username/Email atau Password salah'
+        ]);
+    }
+
+    public function register()
+    {
+        // Jika sudah login, redirect ke dashboard
+        if (session()->get('logged_in')) {
+            $userRole = session()->get('role');
+            $redirectUrl = ($userRole === 'pelanggan') ? 'pelanggan' : 'admin';
+            return redirect()->to($redirectUrl);
+        }
+
+        return view('auth/register');
+    }
+
+    public function doRegister()
+    {
+        $userData = [
+            'username' => $this->request->getPost('username'),
+            'email' => $this->request->getPost('email'),
+            'password' => $this->request->getPost('password'),
+            'name' => $this->request->getPost('name'),
+            'role' => 'pelanggan', // Default role untuk registrasi
+            'status' => 'active'
+        ];
+
+        // Validasi data user
+        if (!$this->userModel->insert($userData)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Gagal mendaftar',
+                'errors' => $this->userModel->errors()
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Registrasi berhasil! Silakan lengkapi profil Anda setelah login.',
+            'redirect' => site_url('auth')
         ]);
     }
 

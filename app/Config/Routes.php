@@ -11,6 +11,15 @@ $routes->get('/', 'LandingPage::index');
 $routes->get('auth', 'Auth::index');
 $routes->post('auth/login', 'Auth::login');
 $routes->get('auth/logout', 'Auth::logout');
+$routes->get('auth/register', 'Auth::register');
+$routes->post('auth/register', 'Auth::doRegister');
+
+// Pelanggan Routes
+$routes->group('pelanggan', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'PelangganDashboard::index');
+    $routes->get('complete-profile', 'PelangganDashboard::completeProfile');
+    $routes->post('complete-profile', 'PelangganDashboard::doCompleteProfile');
+});
 
 // Admin Routes
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {

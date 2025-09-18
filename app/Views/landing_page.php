@@ -141,11 +141,34 @@
                 </div>
 
                 <!-- Desktop menu -->
-                <div class="hidden md:flex space-x-8">
+                <div class="hidden md:flex items-center space-x-8">
                     <a href="#home" class="text-accent hover:text-primary font-medium">Beranda</a>
                     <a href="#products" class="text-accent hover:text-primary font-medium">Produk</a>
                     <a href="#services" class="text-accent hover:text-primary font-medium">Layanan</a>
                     <a href="#contact" class="text-accent hover:text-primary font-medium">Kontak</a>
+
+                    <!-- Auth buttons -->
+                    <?php if (session()->get('logged_in')): ?>
+                        <?php if (session()->get('role') === 'pelanggan'): ?>
+                            <a href="<?= site_url('pelanggan') ?>" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium transition duration-300">
+                                <i class="fas fa-user mr-2"></i>Dashboard
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= site_url('admin') ?>" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium transition duration-300">
+                                <i class="fas fa-cog mr-2"></i>Admin
+                            </a>
+                        <?php endif; ?>
+                        <a href="<?= site_url('auth/logout') ?>" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition duration-300">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </a>
+                    <?php else: ?>
+                        <a href="<?= site_url('auth') ?>" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium transition duration-300">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </a>
+                        <a href="<?= site_url('auth/register') ?>" class="bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-lg font-medium transition duration-300">
+                            <i class="fas fa-user-plus mr-2"></i>Daftar
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -155,6 +178,31 @@
                 <a href="#products" class="block py-2 text-accent hover:text-primary font-medium">Produk</a>
                 <a href="#services" class="block py-2 text-accent hover:text-primary font-medium">Layanan</a>
                 <a href="#contact" class="block py-2 text-accent hover:text-primary font-medium">Kontak</a>
+
+                <!-- Mobile Auth buttons -->
+                <div class="border-t border-gray-200 mt-4 pt-4">
+                    <?php if (session()->get('logged_in')): ?>
+                        <?php if (session()->get('role') === 'pelanggan'): ?>
+                            <a href="<?= site_url('pelanggan') ?>" class="block bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium transition duration-300 mb-2 text-center">
+                                <i class="fas fa-user mr-2"></i>Dashboard
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= site_url('admin') ?>" class="block bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium transition duration-300 mb-2 text-center">
+                                <i class="fas fa-cog mr-2"></i>Admin
+                            </a>
+                        <?php endif; ?>
+                        <a href="<?= site_url('auth/logout') ?>" class="block bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </a>
+                    <?php else: ?>
+                        <a href="<?= site_url('auth') ?>" class="block bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg font-medium transition duration-300 mb-2 text-center">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Login
+                        </a>
+                        <a href="<?= site_url('auth/register') ?>" class="block bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-lg font-medium transition duration-300 text-center">
+                            <i class="fas fa-user-plus mr-2"></i>Daftar
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </nav>
@@ -166,13 +214,69 @@
                 <img src="<?= base_url('assets/img/catshoplogo.png') ?>" alt="Nana Cat Shop Logo" class="h-16 mx-auto mb-5 animate-float">
                 <h1 class="text-4xl md:text-6xl font-bold mb-4 text-white animate-fadeIn">Nana Cat Shop</h1>
                 <p class="text-lg md:text-xl mb-10 text-white leading-relaxed animate-fadeIn" style="animation-delay: 0.3s">Toko dan layanan perawatan kucing terlengkap untuk<br>kebutuhan kucing kesayangan Anda</p>
+
+                <?php if (session()->get('logged_in') && session()->get('role') === 'pelanggan'): ?>
+                    <div class="mb-6 animate-fadeIn" style="animation-delay: 0.4s">
+                        <p class="text-white text-lg mb-4">Selamat datang kembali, <strong><?= session()->get('name') ?></strong>!</p>
+                    </div>
+                <?php endif; ?>
+
                 <div class="flex flex-col sm:flex-row justify-center gap-6 animate-fadeIn" style="animation-delay: 0.6s">
                     <a href="#products" class="bg-white hover:bg-light text-primary font-bold py-3 px-10 rounded-full transition duration-300 shadow-lg hover-scale">Lihat Produk</a>
                     <a href="#services" class="bg-accent/90 hover:bg-accent text-white font-bold py-3 px-10 rounded-full transition duration-300 shadow-lg hover-scale">Layanan Kami</a>
+
+                    <?php if (!session()->get('logged_in')): ?>
+                        <a href="<?= site_url('auth/register') ?>" class="bg-primary hover:bg-secondary text-white font-bold py-3 px-10 rounded-full transition duration-300 shadow-lg hover-scale">
+                            <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Customer Benefits Section -->
+    <?php if (!session()->get('logged_in')): ?>
+        <section class="py-16 bg-gradient-to-r from-primary/10 to-secondary/10">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center text-primary mb-12 relative section-title" data-aos="fade-up">Mengapa Bergabung dengan Kami?</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center" data-aos="fade-up" data-aos-delay="100">
+                        <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-slow">
+                            <i class="fas fa-shopping-cart text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">Belanja Mudah</h3>
+                        <p class="text-gray-600">Akses produk berkualitas dengan harga terbaik untuk kucing kesayangan Anda</p>
+                    </div>
+
+                    <div class="text-center" data-aos="fade-up" data-aos-delay="200">
+                        <div class="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-slow">
+                            <i class="fas fa-calendar-check text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">Booking Layanan</h3>
+                        <p class="text-gray-600">Reservasi mudah untuk grooming, penitipan, dan perawatan kucing Anda</p>
+                    </div>
+
+                    <div class="text-center" data-aos="fade-up" data-aos-delay="300">
+                        <div class="w-20 h-20 bg-accent rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse-slow">
+                            <i class="fas fa-history text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-primary mb-4">Riwayat Lengkap</h3>
+                        <p class="text-gray-600">Pantau semua transaksi dan layanan yang pernah Anda gunakan</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12" data-aos="fade-up" data-aos-delay="400">
+                    <a href="<?= site_url('auth/register') ?>" class="bg-primary hover:bg-secondary text-white font-bold py-4 px-12 rounded-full transition duration-300 shadow-lg hover-scale inline-flex items-center">
+                        <i class="fas fa-user-plus mr-3"></i>
+                        Daftar Sekarang - Gratis!
+                    </a>
+                    <p class="text-gray-600 mt-4">Sudah punya akun? <a href="<?= site_url('auth') ?>" class="text-primary hover:text-secondary font-medium">Login di sini</a></p>
+                </div>
+            </div>
+        </section>
+    <?php endif; ?>
 
     <!-- Products Section -->
     <section class="py-16 bg-white" id="products">
@@ -335,6 +439,22 @@
                         </ul>
                     </div>
 
+                    <div data-aos="fade-up" data-aos-delay="200">
+                        <h5 class="text-lg font-semibold mb-4 text-white">Akun</h5>
+                        <ul class="space-y-2">
+                            <?php if (session()->get('logged_in')): ?>
+                                <?php if (session()->get('role') === 'pelanggan'): ?>
+                                    <li><a href="<?= site_url('pelanggan') ?>" class="text-pink-200 hover:text-white transition duration-300">Dashboard</a></li>
+                                <?php else: ?>
+                                    <li><a href="<?= site_url('admin') ?>" class="text-pink-200 hover:text-white transition duration-300">Admin Panel</a></li>
+                                <?php endif; ?>
+                                <li><a href="<?= site_url('auth/logout') ?>" class="text-pink-200 hover:text-white transition duration-300">Logout</a></li>
+                            <?php else: ?>
+                                <li><a href="<?= site_url('auth') ?>" class="text-pink-200 hover:text-white transition duration-300">Login</a></li>
+                                <li><a href="<?= site_url('auth/register') ?>" class="text-pink-200 hover:text-white transition duration-300">Daftar</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="border-t border-pink-400 mt-8 pt-6 text-center" data-aos="fade-up" data-aos-delay="300">
