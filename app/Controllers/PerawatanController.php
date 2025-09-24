@@ -33,6 +33,49 @@ class PerawatanController extends BaseController
         $this->db = \Config\Database::connect();
     }
 
+    // AJAX: Buat hewan baru dari modal pemilihan hewan
+    public function createHewanAjax()
+    {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(405)->setJSON(['status' => 'error', 'message' => 'Metode tidak diizinkan']);
+        }
+
+        $idpelanggan = $this->request->getPost('idpelanggan');
+        $namahewan = trim((string)$this->request->getPost('namahewan'));
+        $jenis = trim((string)$this->request->getPost('jenis'));
+        $umur = $this->request->getPost('umur');
+        $satuanUmur = $this->request->getPost('satuan_umur') ?: 'tahun';
+        $jenkel = $this->request->getPost('jenkel') ?: null;
+
+        if (empty($idpelanggan)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Pelanggan wajib dipilih terlebih dahulu']);
+        }
+
+        $data = [
+            'idhewan' => $this->hewanModel->generateIdHewan(),
+            'idpelanggan' => $idpelanggan,
+            'namahewan' => $namahewan,
+            'jenis' => $jenis,
+            'umur' => $umur !== null && $umur !== '' ? (int) $umur : null,
+            'satuan_umur' => $satuanUmur,
+            'jenkel' => $jenkel,
+        ];
+
+        if (!$this->hewanModel->insert($data)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Gagal menyimpan hewan',
+                'errors' => $this->hewanModel->errors(),
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'Hewan berhasil ditambahkan',
+            'data' => $data,
+        ]);
+    }
+
     public function index()
     {
         $title = 'Manajemen Perawatan';
@@ -475,7 +518,10 @@ class PerawatanController extends BaseController
 
             // Update booking menjadi completed jika dikaitkan
             if (!empty($bookingId)) {
-                try { $this->bookingModel->update($bookingId, ['status' => 'completed']); } catch (\Throwable $e) {}
+                try {
+                    $this->bookingModel->update($bookingId, ['status' => 'completed']);
+                } catch (\Throwable $e) {
+                }
             }
 
             // Jika request adalah AJAX, kembalikan respons JSON

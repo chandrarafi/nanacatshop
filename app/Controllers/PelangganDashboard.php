@@ -347,6 +347,7 @@ class PelangganDashboard extends BaseController
 
         // Validasi form
         $paymentMethod = $this->request->getPost('payment_method');
+        $paymentBank = $this->request->getPost('payment_bank');
         $shippingAddress = $this->request->getPost('shipping_address');
         $notes = $this->request->getPost('notes');
         $paymentProofFile = $this->request->getFile('payment_proof');
@@ -407,8 +408,8 @@ class PelangganDashboard extends BaseController
                 ]);
             }
 
-            // Pastikan folder upload ada
-            $uploadDir = WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . 'payment_proofs';
+            // Pastikan folder upload ada (public/uploads/payment_proofs)
+            $uploadDir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'payment_proofs';
             if (!is_dir($uploadDir)) {
                 @mkdir($uploadDir, 0755, true);
             }
@@ -420,7 +421,7 @@ class PelangganDashboard extends BaseController
                     'message' => 'Gagal mengunggah bukti pembayaran'
                 ]);
             }
-            // Simpan path relatif dari WRITEPATH untuk referensi
+            // Simpan path relatif dari public root untuk ditampilkan
             $paymentProofFilename = 'uploads/payment_proofs/' . $newName;
         }
 
@@ -435,6 +436,7 @@ class PelangganDashboard extends BaseController
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
                 'payment_method' => $paymentMethod,
+                'payment_bank' => $paymentBank,
                 'shipping_address' => $shippingAddress,
                 'notes' => $notes,
                 'payment_proof' => $paymentProofFilename
@@ -493,7 +495,7 @@ class PelangganDashboard extends BaseController
             $this->db->transRollback();
             // Hapus file bukti bayar jika sudah terunggah
             if ($paymentProofFilename) {
-                $full = WRITEPATH . $paymentProofFilename;
+                $full = FCPATH . $paymentProofFilename;
                 if (is_file($full)) @unlink($full);
             }
             return $this->response->setJSON([

@@ -58,6 +58,7 @@ class PelangganBooking extends BaseController
         $bookingTime = $this->request->getPost('booking_time');
         $notes = $this->request->getPost('notes');
         $paymentType = $this->request->getPost('payment_type') ?: 'dp';
+        $paymentBank = $this->request->getPost('payment_bank');
 
         // Handle payment proof upload (optional)
         $paymentProofFilename = null;
@@ -96,6 +97,7 @@ class PelangganBooking extends BaseController
             'status' => 'pending',
             'notes' => $notes,
             'payment_type' => $paymentType,
+            'payment_bank' => $paymentBank,
             'payment_proof' => $paymentProofFilename,
         ];
 

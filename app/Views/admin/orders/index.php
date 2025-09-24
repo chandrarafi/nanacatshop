@@ -31,6 +31,7 @@
                         <th>No. Order</th>
                         <th>Pelanggan</th>
                         <th>Total</th>
+                        <th>Pembayaran</th>
                         <th>Status</th>
                         <th class="text-end">Aksi</th>
                     </tr>
@@ -45,6 +46,10 @@
                                 <td class="fw-semibold">#<?= esc($order['order_number']) ?></td>
                                 <td><?= esc($order['pelanggan_id']) ?></td>
                                 <td class="fw-semibold"><?= rupiah($order['total_amount']) ?></td>
+                                <td>
+                                    <div class="small text-muted">Transfer</div>
+                                    <span class="badge bg-info text-dark"><?= esc($order['payment_bank'] ?? '-') ?></span>
+                                </td>
                                 <td>
                                     <span class="badge <?php
                                                         switch ($order['status']) {

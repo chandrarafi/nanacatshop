@@ -287,4 +287,5 @@ $routes->group('admin/perawatan', ['filter' => 'auth'], function ($routes) {
     $routes->get('getPerawatanById/(:segment)', 'PerawatanController::getPerawatanById/$1');
     $routes->get('getDetailPerawatan/(:segment)', 'PerawatanController::getDetailPerawatan/$1');
     $routes->get('getHewanByPelanggan/(:segment)', 'PerawatanController::getHewanByPelanggan/$1');
+    $routes->post('hewan/create', 'PerawatanController::createHewanAjax');
 });

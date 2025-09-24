@@ -134,6 +134,47 @@
             </a>
         </div>
 
+        <?php if (!empty($latestBooking)): ?>
+            <div class="grid grid-cols-1 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6 border border-pink-100">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-50 rounded-full mr-4">
+                                <i class="fas fa-receipt text-green-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Status Booking Terbaru #<?= $latestBooking['id'] ?></h3>
+                                <p class="text-gray-600 text-sm">Tanggal: <?= date('d/m/Y', strtotime($latestBooking['booking_date'])) ?> • Jam: <?= substr($latestBooking['booking_time'], 0, 5) ?> WIB</p>
+                            </div>
+                        </div>
+                        <div>
+                            <?php $status = strtolower($latestBooking['status']);
+                            $badgeClass = 'bg-gray-100 text-gray-700';
+                            if ($status === 'confirmed') {
+                                $badgeClass = 'bg-blue-100 text-blue-700';
+                            }
+                            if ($status === 'completed') {
+                                $badgeClass = 'bg-green-100 text-green-700';
+                            }
+                            if ($status === 'cancelled') {
+                                $badgeClass = 'bg-red-100 text-red-700';
+                            }
+                            ?>
+                            <span class="px-3 py-1 rounded-full text-sm font-medium <?= $badgeClass ?>"><?= ucfirst($latestBooking['status']) ?></span>
+                        </div>
+                    </div>
+                    <?php if (!empty($latestBooking['service_name'])): ?>
+                        <div class="mt-4 text-sm text-gray-700">
+                            Layanan: <?= esc($latestBooking['service_name']) ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="mt-4">
+                        <a href="<?= site_url('pelanggan/bookings') ?>" class="text-primary hover:underline text-sm">Lihat semua booking</a>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- User Info -->
         <div class="bg-white rounded-lg shadow-md p-6 border border-pink-100">
             <h3 class="text-xl font-semibold text-gray-900 mb-4">Informasi Akun</h3>

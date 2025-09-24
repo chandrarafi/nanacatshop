@@ -107,6 +107,20 @@
                     </div>
 
                     <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Bank Transfer *</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="payment_bank" value="BCA" class="mr-3" checked>
+                                <span class="text-gray-700">BCA • 1234567890 a/n Nana Cat Shop</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="payment_bank" value="BRI" class="mr-3">
+                                <span class="text-gray-700">BRI • 5555555555 a/n Nana Cat Shop</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti Pembayaran (JPG/PNG/PDF)</label>
                         <input type="file" id="payment_proof" accept="image/jpeg,image/png,application/pdf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
                     </div>
@@ -270,6 +284,7 @@
                     formData.append('booking_time', time);
                     formData.append('notes', notes);
                     formData.append('payment_type', $('input[name="payment_type"]:checked').val());
+                    formData.append('payment_bank', $('input[name="payment_bank"]:checked').val());
                     const proof = document.getElementById('payment_proof');
                     if (proof && proof.files && proof.files[0]) {
                         formData.append('payment_proof', proof.files[0]);
