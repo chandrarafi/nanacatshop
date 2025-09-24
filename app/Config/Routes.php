@@ -19,6 +19,18 @@ $routes->group('pelanggan', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'PelangganDashboard::index');
     $routes->get('complete-profile', 'PelangganDashboard::completeProfile');
     $routes->post('complete-profile', 'PelangganDashboard::doCompleteProfile');
+
+    // Shopping routes
+    $routes->get('shop', 'PelangganDashboard::shop');
+    $routes->post('add-to-cart', 'PelangganDashboard::addToCart');
+    $routes->get('cart', 'PelangganDashboard::cart');
+    $routes->post('update-cart', 'PelangganDashboard::updateCart');
+    $routes->post('remove-from-cart', 'PelangganDashboard::removeFromCart');
+    $routes->get('checkout', 'PelangganDashboard::checkout');
+    $routes->post('process-order', 'PelangganDashboard::processOrder');
+    $routes->get('orders', 'PelangganDashboard::orders');
+    $routes->get('order-detail/(:num)', 'PelangganDashboard::orderDetail/$1');
+    $routes->post('order-receive/(:num)', 'PelangganDashboard::receiveOrder/$1');
 });
 
 // Admin Routes
@@ -33,6 +45,11 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('updateUser/(:num)', 'Admin::updateUser/$1');
     $routes->post('deleteUser/(:num)', 'Admin::deleteUser/$1');
     $routes->get('getRoles', 'Admin::getRoles');
+
+    // Orders management
+    $routes->get('orders', 'AdminOrders::index');
+    $routes->get('orders/(:num)', 'AdminOrders::show/$1');
+    $routes->post('orders/(:num)/status', 'AdminOrders::updateStatus/$1');
 });
 
 // Laporan Routes

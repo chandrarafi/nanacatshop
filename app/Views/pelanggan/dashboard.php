@@ -84,35 +84,47 @@
         <?php endif; ?>
 
         <!-- Info Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 border border-pink-100">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <a href="<?= site_url('pelanggan/shop') ?>" class="bg-white rounded-lg shadow-md p-6 border border-pink-100 hover:shadow-lg transition duration-300">
                 <div class="flex items-center">
                     <div class="p-3 bg-primary/10 rounded-full">
-                        <i class="fas fa-user text-primary text-xl"></i>
+                        <i class="fas fa-shopping-bag text-primary text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Profil Saya</h3>
-                        <p class="text-gray-600">Kelola informasi pribadi</p>
+                        <h3 class="text-lg font-semibold text-gray-900">Belanja Online</h3>
+                        <p class="text-gray-600">Beli produk kucing</p>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="bg-white rounded-lg shadow-md p-6 border border-pink-100">
+            <a href="<?= site_url('pelanggan/orders') ?>" class="bg-white rounded-lg shadow-md p-6 border border-pink-100 hover:shadow-lg transition duration-300">
                 <div class="flex items-center">
                     <div class="p-3 bg-secondary/10 rounded-full">
                         <i class="fas fa-shopping-cart text-secondary text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Pesanan</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">Pesanan Saya</h3>
                         <p class="text-gray-600">Lihat riwayat pesanan</p>
                     </div>
                 </div>
-            </div>
+            </a>
+
+            <a href="<?= site_url('pelanggan/cart') ?>" class="bg-white rounded-lg shadow-md p-6 border border-pink-100 hover:shadow-lg transition duration-300">
+                <div class="flex items-center">
+                    <div class="p-3 bg-accent/10 rounded-full">
+                        <i class="fas fa-cart-shopping text-accent text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Keranjang</h3>
+                        <p class="text-gray-600">Item yang akan dibeli</p>
+                    </div>
+                </div>
+            </a>
 
             <div class="bg-white rounded-lg shadow-md p-6 border border-pink-100">
                 <div class="flex items-center">
-                    <div class="p-3 bg-accent/10 rounded-full">
-                        <i class="fas fa-paw text-accent text-xl"></i>
+                    <div class="p-3 bg-green-100 rounded-full">
+                        <i class="fas fa-paw text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <h3 class="text-lg font-semibold text-gray-900">Hewan Peliharaan</h3>

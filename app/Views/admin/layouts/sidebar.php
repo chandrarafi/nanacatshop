@@ -100,6 +100,13 @@
                          </li>
 
                          <li class="nav-item">
+                             <a class="nav-link <?= str_contains(current_url(), 'admin/orders') ? 'active' : '' ?>" href="<?= site_url('admin/orders') ?>">
+                                 <i class="bi bi-bag-check"></i>
+                                 <span>Pesanan</span>
+                             </a>
+                         </li>
+
+                         <li class="nav-item">
                              <a class="nav-link <?= str_contains(current_url(), 'admin/penitipan') ? 'active' : '' ?>" href="<?= site_url('admin/penitipan') ?>">
                                  <i class="bi bi-house-heart"></i>
                                  <span>Penitipan</span>
