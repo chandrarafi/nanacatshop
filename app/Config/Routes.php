@@ -31,6 +31,13 @@ $routes->group('pelanggan', ['filter' => 'auth'], function ($routes) {
     $routes->get('orders', 'PelangganDashboard::orders');
     $routes->get('order-detail/(:num)', 'PelangganDashboard::orderDetail/$1');
     $routes->post('order-receive/(:num)', 'PelangganDashboard::receiveOrder/$1');
+
+    // Grooming bookings
+    $routes->get('bookings', 'PelangganBooking::index');
+    $routes->get('bookings/new', 'PelangganBooking::form');
+    $routes->post('bookings', 'PelangganBooking::store');
+    $routes->get('bookings/availability', 'PelangganBooking::availability');
+    $routes->get('bookings/invoice/(:num)', 'PelangganBooking::invoice/$1');
 });
 
 // Admin Routes
@@ -50,6 +57,15 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('orders', 'AdminOrders::index');
     $routes->get('orders/(:num)', 'AdminOrders::show/$1');
     $routes->post('orders/(:num)/status', 'AdminOrders::updateStatus/$1');
+
+    // Bookings management
+    $routes->get('bookings', 'AdminBookings::index');
+    $routes->get('bookings/(:num)', 'AdminBookings::show/$1');
+    $routes->post('bookings/(:num)/status', 'AdminBookings::updateStatus/$1');
+    $routes->get('bookings/(:num)/invoice', 'AdminBookings::invoice/$1');
+
+    // Perawatan helper endpoints
+    $routes->get('perawatan/booking/(:num)', 'PerawatanController::getBookingData/$1');
 });
 
 // Laporan Routes

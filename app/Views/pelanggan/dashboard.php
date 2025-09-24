@@ -121,17 +121,17 @@
                 </div>
             </a>
 
-            <div class="bg-white rounded-lg shadow-md p-6 border border-pink-100">
+            <a href="<?= site_url('pelanggan/bookings/new') ?>" class="bg-white rounded-lg shadow-md p-6 border border-pink-100 hover:shadow-lg transition duration-300">
                 <div class="flex items-center">
                     <div class="p-3 bg-green-100 rounded-full">
                         <i class="fas fa-paw text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Hewan Peliharaan</h3>
-                        <p class="text-gray-600">Kelola data hewan peliharaan</p>
+                        <h3 class="text-lg font-semibold text-gray-900">Booking Perawatan</h3>
+                        <p class="text-gray-600">Pesan grooming/perawatan</p>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- User Info -->

@@ -64,6 +64,20 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="booking_id" class="form-label">Booking (opsional)</label>
+                            <div class="input-group">
+                                <select class="form-select" id="booking_id" name="booking_id">
+                                    <option value="">-- Pilih Booking Terkonfirmasi --</option>
+                                    <?php foreach (($confirmedBookings ?? []) as $bk): ?>
+                                        <option value="<?= $bk['id'] ?>">#<?= $bk['id'] ?> • <?= esc($bk['service_name']) ?> • <?= date('d/m/Y', strtotime($bk['booking_date'])) ?> <?= substr($bk['booking_time'], 0, 5) ?> WIB</option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="btn-load-booking">Muat</button>
+                            </div>
+                            <small class="text-muted">Pilih booking untuk mengisi otomatis pelanggan & fasilitas.</small>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="hewan_nama" class="form-label">Hewan</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="hewan_nama" name="hewan_nama" readonly required>
@@ -369,6 +383,67 @@
             $('#idhewan').val(id);
             $('#hewan_nama').val(nama);
             $('#modalPilihHewan').modal('hide');
+        });
+
+        // Load Booking -> set pelanggan & fasilitas otomatis
+        $('#btn-load-booking').on('click', function() {
+            const id = $('#booking_id').val();
+            if (!id) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Perhatian',
+                    text: 'Pilih booking terlebih dahulu'
+                });
+                return;
+            }
+            $.ajax({
+                url: '<?= site_url('admin/perawatan/booking/') ?>' + id,
+                type: 'GET',
+                dataType: 'json',
+                success: function(resp) {
+                    if (resp.status !== 'success') {
+                        Swal.fire('Error', 'Gagal memuat data booking', 'error');
+                        return;
+                    }
+                    // set pelanggan
+                    if (resp.pelanggan) {
+                        $('#idpelanggan').val(resp.pelanggan.idpelanggan);
+                        $('#pelanggan_nama').val(resp.pelanggan.nama);
+                        $('#btn-pilih-hewan').prop('disabled', false);
+                        loadHewanByPelanggan(resp.pelanggan.idpelanggan);
+                    }
+                    // clear fasilitas table
+                    $('#table-fasilitas tbody').empty();
+                    let no = 1;
+                    let total = 0;
+                    (resp.items || []).forEach(function(it) {
+                        const row = `
+                            <tr>
+                                <td class="text-center">${no++}</td>
+                                <td>
+                                    <input type="hidden" class="kdfasilitas" name="detailkdfasilitas[]" value="${it.kdfasilitas || ''}">
+                                    <input type="text" class="form-control" value="${it.namafasilitas}" readonly>
+                                </td>
+                                <td><input type="number" class="form-control harga" name="harga[]" value="${it.harga}" readonly></td>
+                                <td><input type="text" class="form-control" value="${it.satuan}" readonly></td>
+                                <td><input type="number" class="form-control jumlah" name="jumlah[]" value="${it.jumlah}"></td>
+                                <td>
+                                    <input type="hidden" class="subtotal" name="totalharga[]" value="${it.subtotal}">
+                                    <span class="subtotal-text">Rp ${it.subtotal.toLocaleString('id-ID')}</span>
+                                </td>
+                                <td><button type="button" class="btn btn-danger btn-sm btn-hapus-fasilitas"><i class="fas fa-trash"></i></button></td>
+                            </tr>`;
+                        total += it.subtotal;
+                        $('#table-fasilitas tbody').append(row);
+                    });
+                    $('#total-fasilitas').text('Rp ' + total.toLocaleString('id-ID'));
+                    $('#total-biaya').text('Rp ' + total.toLocaleString('id-ID'));
+                    $('#grandtotal').val(total);
+                },
+                error: function() {
+                    Swal.fire('Error', 'Gagal memuat data booking', 'error');
+                }
+            });
         });
 
         // Modal Pilih Fasilitas
