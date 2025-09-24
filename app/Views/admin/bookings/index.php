@@ -18,6 +18,7 @@
                             <th>Jadwal</th>
                             <th>Total</th>
                             <th>Pembayaran</th>
+                            <th>Bank</th>
                             <th>Status</th>
                             <th class="text-center">Aksi</th>
                         </tr>
@@ -50,6 +51,7 @@
                                         <span class="badge <?= $payClass ?>"><i class="bi bi-exclamation-circle"></i> Belum Ada</span>
                                     <?php endif; ?>
                                 </td>
+                                <td><span class="badge bg-info text-dark"><?= !empty($b['payment_bank']) ? esc($b['payment_bank']) : '-' ?></span></td>
                                 <td><span class="badge <?= $statusClass ?>"><?= ucfirst($b['status']) ?></span></td>
                                 <td class="text-center">
                                     <a href="<?= site_url('admin/bookings/' . $b['id']) ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>

@@ -32,7 +32,7 @@
                     <div class="card-body small">
                         <div class="row g-2">
                             <div class="col-md-6"><span class="text-muted">Pelanggan:</span> <?= esc($order['pelanggan_id']) ?></div>
-                            <div class="col-md-6"><span class="text-muted">Metode Pembayaran:</span> <?= esc(ucfirst($order['payment_method'])) ?></div>
+                            <div class="col-md-6"><span class="text-muted">Metode Pembayaran:</span> <?= esc(ucfirst($order['payment_method'])) ?><?= !empty($order['payment_bank']) ? ' • Bank: ' . esc($order['payment_bank']) : '' ?></div>
                             <div class="col-12"><span class="text-muted">Alamat:</span> <?= esc($order['shipping_address']) ?></div>
                             <?php if (!empty($order['notes'])): ?>
                                 <div class="col-12"><span class="text-muted">Catatan:</span> <?= esc($order['notes']) ?></div>

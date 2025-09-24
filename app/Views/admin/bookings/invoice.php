@@ -42,7 +42,7 @@
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
                     <div><strong>Tanggal:</strong> <?= date('d M Y', strtotime($booking['created_at'])) ?></div>
                     <div><strong>Status:</strong> <?= ucfirst($booking['status']) ?></div>
-                    <div><strong>Pembayaran:</strong> <?= !empty($booking['payment_type']) ? strtoupper($booking['payment_type']) : '-' ?></div>
+                    <div><strong>Pembayaran:</strong> <?= !empty($booking['payment_type']) ? strtoupper($booking['payment_type']) : '-' ?><?= !empty($booking['payment_bank']) ? ' • Bank: ' . esc($booking['payment_bank']) : '' ?></div>
                     <div><strong>Pelanggan:</strong> <?= esc($pelanggan['nama'] ?? ('User #' . $booking['user_id'])) ?></div>
                     <div class="text-muted small">HP: <?= esc($pelanggan['nohp'] ?? '-') ?> • Alamat: <?= esc($pelanggan['alamat'] ?? '-') ?></div>
                 </div>

@@ -109,6 +109,10 @@ class AdminBookings extends BaseController
             }
 
             $updates['payment_type'] = 'lunas';
+            $paymentBank = $this->request->getPost('payment_bank');
+            if (!empty($paymentBank)) {
+                $updates['payment_bank'] = $paymentBank;
+            }
             if ($hasValidFile) {
                 $newName = $file->getRandomName();
                 $uploadDir = FCPATH . 'uploads/payment_proofs';

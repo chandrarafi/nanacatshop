@@ -12,7 +12,7 @@ class OrderModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['order_number', 'pelanggan_id', 'total_amount', 'status', 'payment_method', 'shipping_address', 'notes', 'payment_proof', 'courier', 'tracking_number', 'shipped_at', 'created_at', 'updated_at'];
+    protected $allowedFields    = ['order_number', 'pelanggan_id', 'total_amount', 'status', 'payment_method', 'payment_bank', 'shipping_address', 'notes', 'payment_proof', 'courier', 'tracking_number', 'shipped_at', 'created_at', 'updated_at'];
 
     // Dates
     protected $useTimestamps = true;
@@ -27,7 +27,8 @@ class OrderModel extends Model
         'pelanggan_id' => 'required|max_length[30]',
         'total_amount' => 'required|decimal',
         'status' => 'required|in_list[pending,processing,shipped,delivered,cancelled]',
-        'payment_method' => 'required|in_list[cash,transfer,bank]',
+        'payment_method' => 'required|in_list[transfer]',
+        'payment_bank' => 'permit_empty|max_length[50]',
         'shipping_address' => 'required|max_length[500]',
         'notes' => 'permit_empty|max_length[500]',
         'payment_proof' => 'permit_empty|max_length[255]',

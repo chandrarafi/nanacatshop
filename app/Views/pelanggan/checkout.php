@@ -96,13 +96,26 @@
                     <!-- Payment Method (Transfer only) -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Metode Pembayaran</label>
-                        <div class="p-4 rounded-lg border border-gray-200 bg-gray-50">
-                            <p class="text-gray-700 font-medium mb-2">Transfer Bank</p>
-                            <ul class="text-sm text-gray-700 space-y-1">
-                                <li><span class="font-semibold">Bank:</span> BCA</li>
-                                <li><span class="font-semibold">No. Rekening:</span> 1234567890</li>
-                                <li><span class="font-semibold">Atas Nama:</span> Nana Cat Shop</li>
-                            </ul>
+                        <div class="p-4 rounded-lg border border-gray-200 bg-gray-50 space-y-3">
+                            <p class="text-gray-700 font-medium">Transfer Bank</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start gap-3">
+                                    <input type="radio" name="payment_bank" value="BCA" class="mt-1" checked>
+                                    <div class="text-sm text-gray-700">
+                                        <div class="font-semibold">BCA</div>
+                                        <div>No. Rekening: 1234567890</div>
+                                        <div>Atas Nama: Nana Cat Shop</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-start gap-3">
+                                    <input type="radio" name="payment_bank" value="BRI" class="mt-1">
+                                    <div class="text-sm text-gray-700">
+                                        <div class="font-semibold">BRI</div>
+                                        <div>No. Rekening: 5555555555</div>
+                                        <div>Atas Nama: Nana Cat Shop</div>
+                                    </div>
+                                </label>
+                            </div>
                             <input type="hidden" name="payment_method" value="transfer">
                         </div>
                     </div>
@@ -195,7 +208,8 @@
 
                 // Validate form
                 const shippingAddress = $('#shipping_address').val().trim();
-                const paymentMethod = $('input[name="payment_method"]:checked').val();
+                const paymentMethod = 'transfer';
+                const paymentBank = $('input[name="payment_bank"]:checked').val();
 
                 if (!shippingAddress) {
                     alert('Alamat pengiriman harus diisi');
@@ -214,6 +228,7 @@
                 const formData = new FormData();
                 formData.append('shipping_address', shippingAddress);
                 formData.append('payment_method', paymentMethod);
+                formData.append('payment_bank', paymentBank);
                 formData.append('notes', $('#notes').val().trim());
                 const fileInput = document.getElementById('payment_proof');
                 if (fileInput && fileInput.files && fileInput.files[0]) {

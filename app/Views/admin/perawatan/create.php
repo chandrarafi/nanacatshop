@@ -224,6 +224,51 @@
                         </tbody>
                     </table>
                 </div>
+                <hr>
+                <h6 class="mb-2">Tambah Hewan Cepat</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="new_namahewan" placeholder="Nama hewan">
+                    </div>
+                    <div class="col-md-3">
+                        <select id="new_jenis" class="form-select">
+                            <option value="">Pilih Jenis Hewan</option>
+                            <option value="Domestic">Domestik</option>
+                            <option value="Campuran">Campuran</option>
+                            <option value="Persian">Persia</option>
+                            <option value="Maine Coon">Maine Coon</option>
+                            <option value="Siamese">Siam</option>
+                            <option value="British Shorthair">Britania Raya</option>
+                            <option value="Ragdoll">Ragdoll</option>
+                            <option value="Bengal">Bengal</option>
+                            <option value="Sphynx">Sphynx</option>
+                            <option value="Scottish Fold">Skotlandia</option>
+                            <option value="Angora">Angora</option>
+                            <option value="Himalayan">Himalaya</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" min="0" class="form-control" id="new_umur" placeholder="Umur">
+                    </div>
+                    <div class="col-md-3">
+                        <select id="new_satuan_umur" class="form-select">
+                            <option value="tahun">Tahun</option>
+                            <option value="bulan">Bulan</option>
+                            <option value="minggu">Minggu</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mt-2">
+                        <select id="new_jenkel" class="form-select">
+                            <option value="">Pilih Jenis Kelamin</option>
+                            <option value="L">Jantan</option>
+                            <option value="P">Betina</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <button type="button" id="btn-create-hewan" class="btn btn-sm btn-success">Simpan Hewan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -385,6 +430,37 @@
             $('#modalPilihHewan').modal('hide');
         });
 
+        // Tambah Hewan Cepat
+        $('#btn-create-hewan').on('click', function() {
+            const idpelanggan = $('#idpelanggan').val();
+            if (!idpelanggan) {
+                Swal.fire('Perhatian', 'Pilih pelanggan dulu', 'warning');
+                return;
+            }
+            const data = {
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
+                idpelanggan: idpelanggan,
+                namahewan: $('#new_namahewan').val(),
+                jenis: $('#new_jenis').val(),
+                umur: $('#new_umur').val(),
+                satuan_umur: $('#new_satuan_umur').val(),
+                jenkel: $('#new_jenkel').val(),
+            };
+            $.post('<?= site_url('admin/perawatan/hewan/create') ?>', data, function(resp) {
+                if (resp.status === 'success') {
+                    loadHewanByPelanggan(idpelanggan);
+                    Swal.fire('Berhasil', 'Hewan ditambahkan', 'success');
+                    $('#new_namahewan').val('');
+                    $('#new_umur').val('');
+                    $('#new_jenkel').val('');
+                } else {
+                    Swal.fire('Gagal', resp.message || 'Gagal menyimpan hewan', 'error');
+                }
+            }, 'json').fail(function() {
+                Swal.fire('Gagal', 'Gagal menyimpan hewan', 'error');
+            });
+        });
+
         // Load Booking -> set pelanggan & fasilitas otomatis
         $('#btn-load-booking').on('click', function() {
             const id = $('#booking_id').val();
@@ -412,6 +488,8 @@
                         $('#btn-pilih-hewan').prop('disabled', false);
                         loadHewanByPelanggan(resp.pelanggan.idpelanggan);
                     }
+                    // set status ke Dalam Proses
+                    $('#status').val('1');
                     // clear fasilitas table
                     $('#table-fasilitas tbody').empty();
                     let no = 1;

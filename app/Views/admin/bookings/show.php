@@ -14,6 +14,7 @@
                 ?>
                 <span class="badge <?= $statusClass ?> me-2">Status: <?= ucfirst($booking['status']) ?></span>
                 <span class="badge bg-light text-dark border me-2">Pembayaran: <?= !empty($booking['payment_type']) ? strtoupper($booking['payment_type']) : '-' ?></span>
+                <span class="badge bg-info text-dark">Bank: <?= !empty($booking['payment_bank']) ? esc($booking['payment_bank']) : '-' ?></span>
                 <span class="badge bg-light text-dark border">User #<?= $booking['user_id'] ?></span>
             </div>
         </div>
@@ -59,7 +60,10 @@
                     </div>
                     <div class="row mb-2">
                         <div class="col-4 text-muted">Pembayaran</div>
-                        <div class="col-8"><?= !empty($booking['payment_type']) ? strtoupper($booking['payment_type']) : '-' ?></div>
+                        <div class="col-8">
+                            <div><?= !empty($booking['payment_type']) ? strtoupper($booking['payment_type']) : '-' ?></div>
+                            <div class="text-muted small">Bank: <?= !empty($booking['payment_bank']) ? esc($booking['payment_bank']) : '-' ?></div>
+                        </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-4 text-muted">Bukti Pembayaran</div>

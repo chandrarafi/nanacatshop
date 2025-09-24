@@ -20,7 +20,8 @@ class BookingModel extends Model
         'status',
         'notes',
         'payment_type',
-        'payment_proof'
+        'payment_proof',
+        'payment_bank'
     ];
 
     protected $validationRules = [
@@ -31,7 +32,8 @@ class BookingModel extends Model
         'booking_date' => 'required|valid_date',
         'booking_time' => 'required',
         'status' => 'permit_empty|in_list[pending,confirmed,completed,cancelled]',
-        'payment_type' => 'permit_empty|in_list[dp,lunas]'
+        'payment_type' => 'permit_empty|in_list[dp,lunas]',
+        'payment_bank' => 'permit_empty|max_length[50]'
     ];
 
     public function getByUser(int $userId): array
