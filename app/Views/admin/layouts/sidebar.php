@@ -102,7 +102,14 @@
                          <li class="nav-item">
                              <a class="nav-link <?= str_contains(current_url(), 'admin/orders') ? 'active' : '' ?>" href="<?= site_url('admin/orders') ?>">
                                  <i class="bi bi-bag-check"></i>
-                                 <span>Pesanan</span>
+                                 <span>Pesanan Online</span>
+                             </a>
+                         </li>
+
+                         <li class="nav-item">
+                             <a class="nav-link <?= str_contains(current_url(), 'admin/bookings') ? 'active' : '' ?>" href="<?= site_url('admin/bookings') ?>">
+                                 <i class="bi bi-calendar-check"></i>
+                                 <span>Booking Online</span>
                              </a>
                          </li>
 

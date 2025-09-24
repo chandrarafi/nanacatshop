@@ -254,6 +254,9 @@
                         <a href="<?= site_url('pelanggan/shop') ?>" class="bg-primary hover:bg-secondary text-white font-bold py-3 px-10 rounded-full transition duration-300 shadow-lg hover-scale">
                             <i class="fas fa-shopping-bag mr-2"></i>Belanja Sekarang
                         </a>
+                        <a href="<?= site_url('pelanggan/bookings/new') ?>" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-10 rounded-full transition duration-300 shadow-lg hover-scale">
+                            <i class="fas fa-calendar-plus mr-2"></i>Booking Perawatan
+                        </a>
                     <?php elseif (!session()->get('logged_in')): ?>
                         <a href="<?= site_url('auth/register') ?>" class="bg-primary hover:bg-secondary text-white font-bold py-3 px-10 rounded-full transition duration-300 shadow-lg hover-scale">
                             <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang

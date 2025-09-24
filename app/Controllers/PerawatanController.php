@@ -9,6 +9,7 @@ use App\Models\DetailPerawatanModel;
 use App\Models\HewanModel;
 use App\Models\PelangganModel;
 use App\Models\FasilitasModel;
+use App\Models\BookingModel;
 use Hermawan\DataTables\DataTable;
 
 class PerawatanController extends BaseController
@@ -19,6 +20,7 @@ class PerawatanController extends BaseController
     protected $pelangganModel;
     protected $fasilitasModel;
     protected $db;
+    protected $bookingModel;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class PerawatanController extends BaseController
         $this->hewanModel = new HewanModel();
         $this->pelangganModel = new PelangganModel();
         $this->fasilitasModel = new FasilitasModel();
+        $this->bookingModel = new BookingModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -44,7 +47,8 @@ class PerawatanController extends BaseController
         $hewan = $this->hewanModel->findAll();
         $fasilitas = $this->fasilitasModel->getWithKategoriPerawatan();
         $kode_perawatan = $this->perawatanModel->generateKdPerawatan();
-        return view('admin/perawatan/create', compact('title', 'pelanggan', 'hewan', 'fasilitas', 'kode_perawatan'));
+        $confirmedBookings = $this->bookingModel->where('status', 'confirmed')->orderBy('created_at', 'DESC')->findAll();
+        return view('admin/perawatan/create', compact('title', 'pelanggan', 'hewan', 'fasilitas', 'kode_perawatan', 'confirmedBookings'));
     }
 
     public function edit($id = null)
@@ -83,6 +87,9 @@ class PerawatanController extends BaseController
         // Get fasilitas list
         $fasilitas = $this->fasilitasModel->getWithKategoriPerawatan();
 
+        // Confirmed bookings for autofill
+        $confirmedBookings = $this->bookingModel->where('status', 'confirmed')->orderBy('created_at', 'DESC')->findAll();
+
         return view('admin/perawatan/edit', compact(
             'title',
             'perawatan',
@@ -90,7 +97,8 @@ class PerawatanController extends BaseController
             'pelanggan',
             'hewan_list',
             'fasilitas',
-            'detail_perawatan'
+            'detail_perawatan',
+            'confirmedBookings'
         ));
     }
 
@@ -260,7 +268,9 @@ class PerawatanController extends BaseController
 
             // Dapatkan data dari request
             $tglperawatan = $this->request->getPost('tglperawatan');
+            $bookingId = $this->request->getPost('booking_id');
             $idpelanggan = $this->request->getPost('idpelanggan') ?: null;
+            $bookingId = $this->request->getPost('booking_id');
             $idhewan = $this->request->getPost('idhewan') ?: null;
             $grandtotal = $this->request->getPost('grandtotal');
             $status = $this->request->getPost('status') ?? 0;
@@ -327,6 +337,15 @@ class PerawatanController extends BaseController
 
             $this->db->transCommit();
 
+            // Jika berasal dari booking, update status booking menjadi completed
+            if (!empty($bookingId)) {
+                try {
+                    $this->bookingModel->update($bookingId, ['status' => 'completed']);
+                } catch (\Throwable $e) {
+                    // abaikan error update booking
+                }
+            }
+
             return $this->response->setJSON([
                 'status' => 'success',
                 'message' => 'Data perawatan berhasil disimpan',
@@ -342,6 +361,49 @@ class PerawatanController extends BaseController
                 'message' => 'Gagal menyimpan data perawatan: ' . $e->getMessage()
             ]);
         }
+    }
+
+    // Endpoint: Ambil data booking (pelanggan + layanan terpilih) untuk auto-fill form
+    public function getBookingData($id)
+    {
+        $booking = $this->bookingModel->find($id);
+        if (!$booking) {
+            return $this->response->setStatusCode(404)->setJSON(['status' => 'error', 'message' => 'Booking tidak ditemukan']);
+        }
+        $pelanggan = null;
+        if (!empty($booking['user_id'])) {
+            $pelanggan = $this->pelangganModel->where('user_id', $booking['user_id'])->first();
+        }
+        $items = [];
+        $names = array_filter(array_map('trim', explode(',', (string) ($booking['service_name'] ?? ''))));
+        foreach ($names as $nm) {
+            $fac = $this->fasilitasModel->where('namafasilitas', $nm)->first();
+            if ($fac) {
+                $items[] = [
+                    'kdfasilitas' => $fac['kdfasilitas'] ?? null,
+                    'namafasilitas' => $fac['namafasilitas'] ?? $nm,
+                    'harga' => (int) ($fac['harga'] ?? 0),
+                    'satuan' => $fac['satuan'] ?? '-',
+                    'jumlah' => 1,
+                    'subtotal' => (int) ($fac['harga'] ?? 0),
+                ];
+            } else {
+                $items[] = [
+                    'kdfasilitas' => null,
+                    'namafasilitas' => $nm,
+                    'harga' => 0,
+                    'satuan' => '-',
+                    'jumlah' => 1,
+                    'subtotal' => 0,
+                ];
+            }
+        }
+        return $this->response->setJSON([
+            'status' => 'success',
+            'booking' => $booking,
+            'pelanggan' => $pelanggan,
+            'items' => $items,
+        ]);
     }
 
     public function update($id = null)
@@ -410,6 +472,11 @@ class PerawatanController extends BaseController
             }
 
             $this->db->transCommit();
+
+            // Update booking menjadi completed jika dikaitkan
+            if (!empty($bookingId)) {
+                try { $this->bookingModel->update($bookingId, ['status' => 'completed']); } catch (\Throwable $e) {}
+            }
 
             // Jika request adalah AJAX, kembalikan respons JSON
             if ($this->request->isAJAX()) {

@@ -12,7 +12,7 @@ class PelangganModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idpelanggan', 'nama', 'jenkel', 'nohp', 'alamat'];
+    protected $allowedFields    = ['idpelanggan', 'user_id', 'nama', 'jenkel', 'nohp', 'alamat', 'created_at', 'updated_at'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

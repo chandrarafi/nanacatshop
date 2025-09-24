@@ -68,6 +68,20 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="booking_id" class="form-label">Booking (opsional)</label>
+                            <div class="input-group">
+                                <select class="form-select" id="booking_id" name="booking_id">
+                                    <option value="">-- Pilih Booking Terkonfirmasi --</option>
+                                    <?php foreach (($confirmedBookings ?? []) as $bk): ?>
+                                        <option value="<?= $bk['id'] ?>">#<?= $bk['id'] ?> • <?= esc($bk['service_name']) ?> • <?= date('d/m/Y', strtotime($bk['booking_date'])) ?> <?= substr($bk['booking_time'],0,5) ?> WIB</option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="btn-load-booking">Muat</button>
+                            </div>
+                            <small class="text-muted">Pilih booking untuk mengisi otomatis pelanggan & fasilitas.</small>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="hewan_nama" class="form-label">Hewan</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="hewan_nama" name="hewan_nama" value="<?= $perawatan['namahewan'] ?? '' ?>" readonly>

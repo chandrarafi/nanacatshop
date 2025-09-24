@@ -126,6 +126,38 @@ class Auth extends BaseController
             ]);
         }
 
+        // Link to pelanggan table with user_id for convenience
+        $newUserId = $this->userModel->getInsertID();
+        $db = \Config\Database::connect();
+        $fields = $db->getFieldNames('pelanggan');
+        $hasUserIdCol = is_array($fields) && in_array('user_id', $fields, true);
+
+        $pelangganExists = false;
+        if ($hasUserIdCol) {
+            $pelangganExists = (bool) $this->pelangganModel->where('user_id', $newUserId)->first();
+        }
+        if (!$pelangganExists) {
+            $now = date('Y-m-d H:i:s');
+            $newPelanggan = [
+                'idpelanggan' => $this->pelangganModel->generateIdPelanggan(),
+                'nama' => $userData['name'],
+                'nohp' => null,
+                'alamat' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+            if ($hasUserIdCol) {
+                $newPelanggan['user_id'] = $newUserId;
+            }
+            // Insert ignoring validation & protection; use builder ignore to avoid duplicates
+            try {
+                $this->pelangganModel->skipValidation(true)->protect(false);
+                $this->pelangganModel->builder()->ignore(true)->insert($newPelanggan);
+            } catch (\Throwable $e) {
+                // swallow but could log: log_message('error', 'Failed create pelanggan: '.$e->getMessage());
+            }
+        }
+
         return $this->response->setJSON([
             'status' => 'success',
             'message' => 'Registrasi berhasil! Silakan lengkapi profil Anda setelah login.',
