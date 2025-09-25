@@ -241,7 +241,56 @@
         </div>
     </div>
 
-    <?php if (empty($penjualan)) : ?>
+    <?php if (isset($filter['type']) && $filter['type'] === 'tahun') : ?>
+        <!-- Ringkasan Penjualan Per Bulan -->
+        <div class="detail-header">Ringkasan Penjualan Per Bulan (Online + Offline)</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="text-center" width="5%">No</th>
+                    <th width="20%">Bulan</th>
+                    <th class="text-center" width="10%">Transaksi</th>
+                    <th class="text-right" width="20%">Total</th>
+                    <th class="text-center" width="10%">Online</th>
+                    <th class="text-right" width="20%">Total Online</th>
+                    <th class="text-center" width="10%">Offline</th>
+                    <th class="text-right" width="20%">Total Offline</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $bulanNama = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+                $no = 1;
+                $grandAll = 0;
+                $grandOnline = 0;
+                $grandOffline = 0;
+                foreach ($summary_monthly as $m => $row):
+                    $grandAll += $row['total'];
+                    $grandOnline += $row['total_online'];
+                    $grandOffline += $row['total_offline'];
+                ?>
+                    <tr>
+                        <td class="text-center"><?= $no++ ?></td>
+                        <td><?= $bulanNama[$m] ?></td>
+                        <td class="text-center"><?= (int)$row['jumlah'] ?></td>
+                        <td class="text-right">Rp <?= number_format($row['total'], 0, ',', '.') ?></td>
+                        <td class="text-center"><?= (int)$row['jumlah_online'] ?></td>
+                        <td class="text-right">Rp <?= number_format($row['total_online'], 0, ',', '.') ?></td>
+                        <td class="text-center"><?= (int)$row['jumlah_offline'] ?></td>
+                        <td class="text-right">Rp <?= number_format($row['total_offline'], 0, ',', '.') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                <tr class="total-row">
+                    <th colspan="3" class="text-right">TOTAL</th>
+                    <th class="text-right">Rp <?= number_format($grandAll, 0, ',', '.') ?></th>
+                    <th></th>
+                    <th class="text-right">Rp <?= number_format($grandOnline, 0, ',', '.') ?></th>
+                    <th></th>
+                    <th class="text-right">Rp <?= number_format($grandOffline, 0, ',', '.') ?></th>
+                </tr>
+            </tbody>
+        </table>
+    <?php elseif (empty($penjualan)) : ?>
         <p class="text-center">Tidak ada data yang ditemukan.</p>
     <?php else : ?>
         <?php if (isset($filter['is_detail']) && $filter['is_detail']) : ?>
@@ -313,6 +362,7 @@
                     <tr>
                         <th width="5%">No</th>
                         <th width="10%">No Faktur</th>
+                        <th width="8%">Sumber</th>
                         <th width="10%">Tgl Faktur</th>
                         <th width="15%">Nama Pelanggan</th>
                         <th width="10%">Kode Barang</th>
@@ -337,6 +387,7 @@
                                 <td class="text-center"><?= $no ?></td>
                                 <?php if ($isFirstRow) : ?>
                                     <td rowspan="<?= $rowspan ?>"><?= safeOutput($item->kdpenjualan) ?></td>
+                                    <td rowspan="<?= $rowspan ?>"><?= $item->is_online == 1 ? 'Online' : 'Offline' ?></td>
                                     <td rowspan="<?= $rowspan ?>"><?= date('d-m-Y', strtotime($item->tglpenjualan)) ?></td>
                                     <td rowspan="<?= $rowspan ?>"><?= safeOutput($item->namapelanggan) ?></td>
                                 <?php endif; ?>
@@ -353,7 +404,7 @@
                     endforeach;
                     ?>
                     <tr class="total-row">
-                        <th colspan="8" class="text-right">TOTAL</th>
+                        <th colspan="9" class="text-right">TOTAL</th>
                         <th class="text-right">Rp <?= number_format($totalSeluruh, 0, ',', '.') ?></th>
                     </tr>
                 </tbody>

@@ -19,6 +19,8 @@ $routes->group('pelanggan', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'PelangganDashboard::index');
     $routes->get('complete-profile', 'PelangganDashboard::completeProfile');
     $routes->post('complete-profile', 'PelangganDashboard::doCompleteProfile');
+    $routes->get('profile/edit', 'PelangganDashboard::editProfile');
+    $routes->post('profile/update', 'PelangganDashboard::updateProfile');
 
     // Shopping routes
     $routes->get('shop', 'PelangganDashboard::shop');
@@ -72,6 +74,17 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 $routes->group('admin/laporan', ['filter' => 'auth'], function ($routes) {
     // Pelanggan
     $routes->get('pelanggan', 'LaporanController::pelanggan');
+
+    // Booking Online
+    $routes->get('booking', 'LaporanController::booking');
+    $routes->get('booking/data', 'LaporanController::getBookingData');
+    $routes->get('booking/cetak', 'LaporanController::cetakBookingPdf');
+    $routes->get('booking-perbulan', 'LaporanController::bookingPerbulan');
+    $routes->get('booking-perbulan/data', 'LaporanController::getBookingPerbulanData');
+    $routes->get('booking-perbulan/cetak', 'LaporanController::cetakBookingPerbulanPdf');
+    $routes->get('booking-pertahun', 'LaporanController::bookingPertahun');
+    $routes->get('booking-pertahun/data', 'LaporanController::getBookingPertahunData');
+    $routes->get('booking-pertahun/cetak', 'LaporanController::cetakBookingPertahunPdf');
     $routes->get('pelanggan/data', 'LaporanController::getPelangganData');
     $routes->get('pelanggan/cetak', 'LaporanController::cetakPelangganPdf');
 

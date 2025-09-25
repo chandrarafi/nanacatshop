@@ -24,6 +24,7 @@ class LaporanController extends BaseController
     protected $barangMasukModel;
     protected $detailBarangMasukModel;
     protected $db;
+    protected $bookingModel;
 
     public function initController(\CodeIgniter\HTTP\RequestInterface $request, \CodeIgniter\HTTP\ResponseInterface $response, \Psr\Log\LoggerInterface $logger)
     {
@@ -38,6 +39,7 @@ class LaporanController extends BaseController
         $this->barangMasukModel = new BarangMasukModel();
         $this->detailBarangMasukModel = new DetailBarangMasukModel();
         $this->db = \Config\Database::connect();
+        $this->bookingModel = new \App\Models\BookingModel();
     }
 
     public function pelanggan()
@@ -1034,6 +1036,9 @@ class LaporanController extends BaseController
         $builder = $penjualanModel->builder();
         $builder->select('penjualan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
         $builder->join('pelanggan', 'pelanggan.idpelanggan = penjualan.idpelanggan', 'left');
+        // Tambah gabungan penjualan online (orders) sebagai union
+        $ordersBuilder = $this->db->table('orders o')
+            ->select('o.id as kdpenjualan, DATE(o.created_at) as tglpenjualan, o.total_amount as grandtotal, 1 as status, o.pelanggan_id as idpelanggan, 1 as is_online', false);
 
         // Filter berdasarkan pelanggan
         if (!empty($idpelanggan)) {
@@ -1065,7 +1070,65 @@ class LaporanController extends BaseController
         // Ambil detail untuk setiap penjualan
         foreach ($data as &$item) {
             $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+            $item->is_online = 0;
         }
+
+        // Gabungkan penjualan online (orders)
+        $ordersBuilder = $this->db->table('orders o');
+        $ordersBuilder->select('o.*, IFNULL(p.nama, "Pelanggan Umum") as namapelanggan', false);
+        $ordersBuilder->join('pelanggan p', 'p.idpelanggan = o.pelanggan_id', 'left');
+        if (!empty($idpelanggan)) {
+            $ordersBuilder->where('o.pelanggan_id', $idpelanggan);
+        }
+        if ($status !== '' && $status !== null) {
+            // Samakan: status 1 (Selesai) ≈ delivered, selain itu pending
+            if ($status === '1') {
+                $ordersBuilder->where('o.status', 'delivered');
+            } elseif ($status === '0') {
+                $ordersBuilder->where('o.status !=', 'delivered');
+            }
+        }
+        if ($filterType == 'tanggal' && !empty($tglAwal) && !empty($tglAkhir)) {
+            $ordersBuilder->where('DATE(o.created_at) >=', $tglAwal)
+                ->where('DATE(o.created_at) <=', $tglAkhir);
+        } elseif ($filterType == 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $ordersBuilder->where('MONTH(o.created_at)', $bulan)
+                ->where('YEAR(o.created_at)', $tahun);
+        } elseif ($filterType == 'tahun' && !empty($tahun)) {
+            $ordersBuilder->where('YEAR(o.created_at)', $tahun);
+        }
+        $orders = $ordersBuilder->orderBy('o.created_at', 'DESC')->get()->getResultArray();
+
+        $orderDetailModel = new \App\Models\OrderDetailModel();
+        foreach ($orders as $or) {
+            $obj = (object) [
+                'kdpenjualan' => $or['order_number'] ?? ('ORD' . $or['id']),
+                'tglpenjualan' => date('Y-m-d', strtotime($or['created_at'] ?? 'now')),
+                'namapelanggan' => $or['namapelanggan'] ?? 'Pelanggan Umum',
+                'status' => ($or['status'] === 'delivered') ? 1 : 0,
+                'grandtotal' => (float) ($or['total_amount'] ?? 0),
+                'is_online' => 1,
+            ];
+            $details = $orderDetailModel->getOrderDetails($or['id']);
+            $mapped = [];
+            foreach ($details as $d) {
+                $mapped[] = [
+                    'detailkdbarang' => $d['kdbarang'],
+                    'namabarang' => $d['namabarang'] ?? '-',
+                    'namakategori' => '-',
+                    'jumlah' => $d['quantity'],
+                    'harga' => $d['price'],
+                    'totalharga' => $d['subtotal'],
+                ];
+            }
+            $obj->detail = $mapped;
+            $data[] = $obj;
+        }
+
+        // Sort gabungan berdasarkan tanggal desc
+        usort($data, function ($a, $b) {
+            return strcmp($b->tglpenjualan, $a->tglpenjualan);
+        });
 
         return $this->response->setJSON([
             'status' => 'success',
@@ -1135,6 +1198,60 @@ class LaporanController extends BaseController
 
         $builder->orderBy('penjualan.tglpenjualan', 'DESC');
         $penjualan = $builder->get()->getResult();
+
+        // Gabungkan penjualan online (orders)
+        $ordersBuilder = $this->db->table('orders o');
+        $ordersBuilder->select('o.*, IFNULL(p.nama, "Pelanggan Umum") as namapelanggan', false);
+        $ordersBuilder->join('pelanggan p', 'p.idpelanggan = o.pelanggan_id', 'left');
+        if (!empty($idpelanggan)) {
+            $ordersBuilder->where('o.pelanggan_id', $idpelanggan);
+        }
+        if ($status !== '' && $status !== null) {
+            // Samakan: status 1 (Selesai) ≈ delivered, selain itu pending
+            if ($status === '1') {
+                $ordersBuilder->where('o.status', 'delivered');
+            } elseif ($status === '0') {
+                $ordersBuilder->where('o.status !=', 'delivered');
+            }
+        }
+        if ($filterType == 'tanggal' && !empty($tglAwal) && !empty($tglAkhir)) {
+            $ordersBuilder->where('DATE(o.created_at) >=', $tglAwal)
+                ->where('DATE(o.created_at) <=', $tglAkhir);
+        } elseif ($filterType == 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $ordersBuilder->where('MONTH(o.created_at)', $bulan)
+                ->where('YEAR(o.created_at)', $tahun);
+        } elseif ($filterType == 'tahun' && !empty($tahun)) {
+            $ordersBuilder->where('YEAR(o.created_at)', $tahun);
+        }
+        $orders = $ordersBuilder->orderBy('o.created_at', 'DESC')->get()->getResultArray();
+
+        // Map orders ke struktur yang sama dengan penjualan
+        $orderDetailModel = new \App\Models\OrderDetailModel();
+        foreach ($orders as $or) {
+            $item = (object) [
+                'kdpenjualan' => $or['order_number'] ?? ('ORD' . $or['id']),
+                'tglpenjualan' => date('Y-m-d', strtotime($or['created_at'] ?? 'now')),
+                'namapelanggan' => $or['namapelanggan'] ?? 'Pelanggan Umum',
+                'status' => ($or['status'] === 'delivered') ? 1 : 0,
+                'grandtotal' => (float) ($or['total_amount'] ?? 0),
+                'is_online' => 1,
+            ];
+            $details = $orderDetailModel->getOrderDetails($or['id']);
+            // Ubah key agar cocok dengan view
+            $mapped = [];
+            foreach ($details as $d) {
+                $mapped[] = [
+                    'detailkdbarang' => $d['kdbarang'],
+                    'namabarang' => $d['namabarang'] ?? '-',
+                    'namakategori' => '-',
+                    'jumlah' => $d['quantity'],
+                    'harga' => $d['price'],
+                    'totalharga' => $d['subtotal'],
+                ];
+            }
+            $item->detail = $mapped;
+            $penjualan[] = $item;
+        }
 
         // Ambil detail untuk setiap penjualan
         foreach ($penjualan as &$item) {
@@ -1267,7 +1384,57 @@ class LaporanController extends BaseController
         // Ambil detail untuk setiap penjualan
         foreach ($data as &$item) {
             $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+            $item->is_online = 0;
         }
+
+        // Gabungkan data orders (penjualan online) per bulan
+        $ordersBuilder = $this->db->table('orders o');
+        $ordersBuilder->select('o.*, IFNULL(p.nama, "Pelanggan Umum") as namapelanggan', false)
+            ->join('pelanggan p', 'p.idpelanggan = o.pelanggan_id', 'left')
+            ->where('MONTH(o.created_at)', $bulan)
+            ->where('YEAR(o.created_at)', $tahun);
+        if (!empty($idpelanggan)) {
+            $ordersBuilder->where('o.pelanggan_id', $idpelanggan);
+        }
+        if ($status !== '' && $status !== null) {
+            if ($status === '1') {
+                $ordersBuilder->where('o.status', 'delivered');
+            } elseif ($status === '0') {
+                $ordersBuilder->where('o.status !=', 'delivered');
+            }
+        }
+        $orders = $ordersBuilder->orderBy('o.created_at', 'ASC')->get()->getResultArray();
+
+        $orderDetailModel = new \App\Models\OrderDetailModel();
+        foreach ($orders as $or) {
+            $obj = (object) [
+                'kdpenjualan' => $or['order_number'] ?? ('ORD' . $or['id']),
+                'tglpenjualan' => date('Y-m-d', strtotime($or['created_at'] ?? 'now')),
+                'namapelanggan' => $or['namapelanggan'] ?? 'Pelanggan Umum',
+                'status' => ($or['status'] === 'delivered') ? 1 : 0,
+                'grandtotal' => (float) ($or['total_amount'] ?? 0),
+                'is_online' => 1,
+            ];
+            $details = $orderDetailModel->getOrderDetails($or['id']);
+            $mapped = [];
+            foreach ($details as $d) {
+                $mapped[] = [
+                    'detailkdbarang' => $d['kdbarang'],
+                    'namabarang' => $d['namabarang'] ?? '-',
+                    'namakategori' => '-',
+                    'jumlah' => $d['quantity'],
+                    'harga' => $d['price'],
+                    'totalharga' => $d['subtotal'],
+                ];
+            }
+            $obj->detail = $mapped;
+            $data[] = $obj;
+        }
+
+        // Urutkan
+        usort($data, function ($a, $b) {
+            return strcmp($a->tglpenjualan, $b->tglpenjualan);
+        });
 
         return $this->response->setJSON([
             'status' => 'success',
@@ -1318,7 +1485,51 @@ class LaporanController extends BaseController
         // Ambil detail untuk setiap penjualan
         foreach ($penjualan as &$item) {
             $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+            $item->is_online = 0;
         }
+
+        // Gabungkan orders (online)
+        $ordersBuilder = $this->db->table('orders o');
+        $ordersBuilder->select('o.*, IFNULL(p.nama, "Pelanggan Umum") as namapelanggan', false)
+            ->join('pelanggan p', 'p.idpelanggan = o.pelanggan_id', 'left')
+            ->where('MONTH(o.created_at)', $bulan)
+            ->where('YEAR(o.created_at)', $tahun);
+        if (!empty($idpelanggan)) $ordersBuilder->where('o.pelanggan_id', $idpelanggan);
+        if ($status !== '' && $status !== null) {
+            if ($status === '1') $ordersBuilder->where('o.status', 'delivered');
+            elseif ($status === '0') $ordersBuilder->where('o.status !=', 'delivered');
+        }
+        $orders = $ordersBuilder->orderBy('o.created_at', 'ASC')->get()->getResultArray();
+
+        $orderDetailModel = new \App\Models\OrderDetailModel();
+        foreach ($orders as $or) {
+            $obj = (object) [
+                'kdpenjualan' => $or['order_number'] ?? ('ORD' . $or['id']),
+                'tglpenjualan' => date('Y-m-d', strtotime($or['created_at'] ?? 'now')),
+                'namapelanggan' => $or['namapelanggan'] ?? 'Pelanggan Umum',
+                'status' => ($or['status'] === 'delivered') ? 1 : 0,
+                'grandtotal' => (float) ($or['total_amount'] ?? 0),
+                'is_online' => 1,
+            ];
+            $details = $orderDetailModel->getOrderDetails($or['id']);
+            $mapped = [];
+            foreach ($details as $d) {
+                $mapped[] = [
+                    'detailkdbarang' => $d['kdbarang'],
+                    'namabarang' => $d['namabarang'] ?? '-',
+                    'namakategori' => '-',
+                    'jumlah' => $d['quantity'],
+                    'harga' => $d['price'],
+                    'totalharga' => $d['subtotal'],
+                ];
+            }
+            $obj->detail = $mapped;
+            $penjualan[] = $obj;
+        }
+
+        usort($penjualan, function ($a, $b) {
+            return strcmp($a->tglpenjualan, $b->tglpenjualan);
+        });
 
         // Siapkan data untuk view
         $logoPath = FCPATH . 'assets/img/catshoplogo.png';
@@ -1402,41 +1613,11 @@ class LaporanController extends BaseController
         $tahun = $this->request->getGet('tahun');
         $idpelanggan = $this->request->getGet('idpelanggan');
         $status = $this->request->getGet('status');
-
-        // Load model
-        $penjualanModel = new \App\Models\PenjualanModel();
-        $detailPenjualanModel = new \App\Models\DetailPenjualanModel();
-
-        $builder = $penjualanModel->builder();
-        $builder->select('penjualan.*, IFNULL(pelanggan.nama, "Pelanggan Umum") as namapelanggan', false);
-        $builder->join('pelanggan', 'pelanggan.idpelanggan = penjualan.idpelanggan', 'left');
-
-        // Filter berdasarkan pelanggan
-        if (!empty($idpelanggan)) {
-            $builder->where('penjualan.idpelanggan', $idpelanggan);
-        }
-
-        // Filter berdasarkan status
-        if ($status !== '' && $status !== null) {
-            $builder->where('penjualan.status', $status);
-        }
-
-        // Filter berdasarkan tahun
-        if (!empty($tahun)) {
-            $builder->where('YEAR(penjualan.tglpenjualan)', $tahun);
-        }
-
-        $builder->orderBy('penjualan.tglpenjualan', 'ASC');
-        $data = $builder->get()->getResult();
-
-        // Ambil detail untuk setiap penjualan
-        foreach ($data as &$item) {
-            $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
-        }
+        $summary = $this->buildMonthlySalesSummary((int)$tahun, $idpelanggan, $status);
 
         return $this->response->setJSON([
             'status' => 'success',
-            'data' => $data
+            'summary' => $summary,
         ]);
     }
 
@@ -1479,7 +1660,50 @@ class LaporanController extends BaseController
         // Ambil detail untuk setiap penjualan
         foreach ($penjualan as &$item) {
             $item->detail = $detailPenjualanModel->getDetailWithBarang($item->kdpenjualan);
+            $item->is_online = 0;
         }
+
+        // Gabungkan orders
+        $ordersBuilder = $this->db->table('orders o');
+        $ordersBuilder->select('o.*, IFNULL(p.nama, "Pelanggan Umum") as namapelanggan', false)
+            ->join('pelanggan p', 'p.idpelanggan = o.pelanggan_id', 'left')
+            ->where('YEAR(o.created_at)', $tahun);
+        if (!empty($idpelanggan)) $ordersBuilder->where('o.pelanggan_id', $idpelanggan);
+        if ($status !== '' && $status !== null) {
+            if ($status === '1') $ordersBuilder->where('o.status', 'delivered');
+            elseif ($status === '0') $ordersBuilder->where('o.status !=', 'delivered');
+        }
+        $orders = $ordersBuilder->orderBy('o.created_at', 'ASC')->get()->getResultArray();
+
+        $orderDetailModel = new \App\Models\OrderDetailModel();
+        foreach ($orders as $or) {
+            $obj = (object) [
+                'kdpenjualan' => $or['order_number'] ?? ('ORD' . $or['id']),
+                'tglpenjualan' => date('Y-m-d', strtotime($or['created_at'] ?? 'now')),
+                'namapelanggan' => $or['namapelanggan'] ?? 'Pelanggan Umum',
+                'status' => ($or['status'] === 'delivered') ? 1 : 0,
+                'grandtotal' => (float) ($or['total_amount'] ?? 0),
+                'is_online' => 1,
+            ];
+            $details = $orderDetailModel->getOrderDetails($or['id']);
+            $mapped = [];
+            foreach ($details as $d) {
+                $mapped[] = [
+                    'detailkdbarang' => $d['kdbarang'],
+                    'namabarang' => $d['namabarang'] ?? '-',
+                    'namakategori' => '-',
+                    'jumlah' => $d['quantity'],
+                    'harga' => $d['price'],
+                    'totalharga' => $d['subtotal'],
+                ];
+            }
+            $obj->detail = $mapped;
+            $penjualan[] = $obj;
+        }
+
+        usort($penjualan, function ($a, $b) {
+            return strcmp($a->tglpenjualan, $b->tglpenjualan);
+        });
 
         // Siapkan data untuk view
         $logoPath = FCPATH . 'assets/img/catshoplogo.png';
@@ -1535,7 +1759,9 @@ class LaporanController extends BaseController
             'tanggal_ttd' => $tanggalTTD,
             'kota' => 'Kota Padang',
             'admin' => 'Admin Nana Cat Shop',
-            'logo' => $logoData
+            'logo' => $logoData,
+            // Summary bulanan untuk tampilan pertahun
+            'summary_monthly' => $this->buildMonthlySalesSummary((int)$tahun, $idpelanggan, $status),
         ];
 
         // Render view ke HTML
@@ -1556,6 +1782,62 @@ class LaporanController extends BaseController
         // Output PDF
         $dompdf->stream('Laporan_Penjualan_Tahun_' . $tahun . '.pdf', ['Attachment' => false]);
         exit();
+    }
+
+    private function buildMonthlySalesSummary(int $year, ?string $idpelanggan, $status)
+    {
+        // Siapkan array 12 bulan default
+        $summary = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $summary[$m] = [
+                'bulan' => $m,
+                'jumlah' => 0,
+                'total' => 0.0,
+                'jumlah_online' => 0,
+                'total_online' => 0.0,
+                'jumlah_offline' => 0,
+                'total_offline' => 0.0,
+            ];
+        }
+
+        // OFFLINE (penjualan)
+        $pb = $this->db->table('penjualan')
+            ->select('MONTH(tglpenjualan) as bulan, COUNT(*) as jml, SUM(COALESCE(grandtotal,0)) as total', false)
+            ->where('YEAR(tglpenjualan)', $year)
+            ->groupBy('MONTH(tglpenjualan)');
+        if (!empty($idpelanggan)) $pb->where('idpelanggan', $idpelanggan);
+        if ($status !== '' && $status !== null) $pb->where('status', $status);
+        $offline = $pb->get()->getResultArray();
+        foreach ($offline as $row) {
+            $m = (int)$row['bulan'];
+            if (!isset($summary[$m])) continue;
+            $summary[$m]['jumlah'] += (int)$row['jml'];
+            $summary[$m]['total'] += (float)$row['total'];
+            $summary[$m]['jumlah_offline'] += (int)$row['jml'];
+            $summary[$m]['total_offline'] += (float)$row['total'];
+        }
+
+        // ONLINE (orders)
+        $ob = $this->db->table('orders o')
+            ->select('MONTH(o.created_at) as bulan, COUNT(*) as jml, SUM(COALESCE(o.total_amount,0)) as total', false)
+            ->where('YEAR(o.created_at)', $year)
+            ->groupBy('MONTH(o.created_at)');
+        if (!empty($idpelanggan)) $ob->where('o.pelanggan_id', $idpelanggan);
+        if ($status !== '' && $status !== null) {
+            if ($status === '1') $ob->where('o.status', 'delivered');
+            else $ob->where('o.status !=', 'delivered');
+        }
+        $online = $ob->get()->getResultArray();
+        foreach ($online as $row) {
+            $m = (int)$row['bulan'];
+            if (!isset($summary[$m])) continue;
+            $summary[$m]['jumlah'] += (int)$row['jml'];
+            $summary[$m]['total'] += (float)$row['total'];
+            $summary[$m]['jumlah_online'] += (int)$row['jml'];
+            $summary[$m]['total_online'] += (float)$row['total'];
+        }
+
+        return $summary;
     }
 
     // Laporan Penitipan
@@ -2157,6 +2439,429 @@ class LaporanController extends BaseController
 
         // Output PDF
         $dompdf->stream('Laporan_Barang_Masuk_Tahun_' . $tahun . '.pdf', ['Attachment' => false]);
+        exit();
+    }
+
+    // Laporan Booking Online
+    public function booking()
+    {
+        $title = 'Laporan Booking Online';
+        return view('admin/laporan/booking', compact('title'));
+    }
+
+    public function bookingPerbulan()
+    {
+        $title = 'Laporan Booking Perbulan';
+        return view('admin/laporan/booking_perbulan', compact('title'));
+    }
+
+    public function bookingPertahun()
+    {
+        $title = 'Laporan Booking Pertahun';
+        return view('admin/laporan/booking_pertahun', compact('title'));
+    }
+
+    public function getBookingData()
+    {
+        $filterType = $this->request->getGet('filter_type') ?? 'tanggal'; // tanggal, bulan, tahun
+        $tglAwal = $this->request->getGet('tgl_awal');
+        $tglAkhir = $this->request->getGet('tgl_akhir');
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+
+        $builder = $this->db->table('bookings b');
+        $builder->select('b.*, p.nama as namapelanggan, p.alamat, p.nohp');
+        $builder->join('pelanggan p', 'p.idpelanggan = b.pelanggan_id OR p.user_id = b.user_id', 'left');
+
+        if (!empty($idpelanggan)) {
+            $builder->where('b.pelanggan_id', $idpelanggan);
+        }
+        if ($status !== '' && $status !== null) {
+            $builder->where('b.status', $status);
+        }
+
+        if ($filterType == 'tanggal' && !empty($tglAwal) && !empty($tglAkhir)) {
+            $builder->where('DATE(b.booking_date) >=', $tglAwal)
+                ->where('DATE(b.booking_date) <=', $tglAkhir);
+        } elseif ($filterType == 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $builder->where('MONTH(b.booking_date)', $bulan)
+                ->where('YEAR(b.booking_date)', $tahun);
+        } elseif ($filterType == 'tahun' && !empty($tahun)) {
+            $builder->where('YEAR(b.booking_date)', $tahun);
+        }
+
+        $builder->orderBy('b.booking_date', 'DESC');
+        $data = $builder->get()->getResult();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+
+    public function cetakBookingPdf()
+    {
+        $filterType = $this->request->getGet('filter_type') ?? 'tanggal'; // tanggal, bulan, tahun
+        $tglAwal = $this->request->getGet('tgl_awal');
+        $tglAkhir = $this->request->getGet('tgl_akhir');
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+        $id = $this->request->getGet('id'); // cetak per id booking opsional
+
+        $builder = $this->db->table('bookings b');
+        $builder->select('b.*, p.nama as namapelanggan, p.alamat, p.nohp');
+        $builder->join('pelanggan p', 'p.idpelanggan = b.pelanggan_id OR p.user_id = b.user_id', 'left');
+
+        if (!empty($id)) {
+            $builder->where('b.id', $id);
+        } else {
+            if (!empty($idpelanggan)) {
+                $builder->where('b.pelanggan_id', $idpelanggan);
+                $pelangganInfo = $this->pelangganModel->find($idpelanggan);
+                $namaPelanggan = $pelangganInfo ? $pelangganInfo['nama'] : 'Pelanggan Umum';
+            } else {
+                $namaPelanggan = 'Semua';
+            }
+
+            if ($status !== '' && $status !== null) {
+                $builder->where('b.status', $status);
+            }
+
+            if ($filterType == 'tanggal' && !empty($tglAwal) && !empty($tglAkhir)) {
+                $builder->where('DATE(b.booking_date) >=', $tglAwal)
+                    ->where('DATE(b.booking_date) <=', $tglAkhir);
+                $filterText = 'Tanggal: ' . date('d-m-Y', strtotime($tglAwal)) . ' s/d ' . date('d-m-Y', strtotime($tglAkhir));
+            } elseif ($filterType == 'bulan' && !empty($bulan) && !empty($tahun)) {
+                $builder->where('MONTH(b.booking_date)', $bulan)
+                    ->where('YEAR(b.booking_date)', $tahun);
+                $namaBulan = date('F', mktime(0, 0, 0, $bulan, 10));
+                $filterText = 'Bulan: ' . $namaBulan . ' ' . $tahun;
+            } elseif ($filterType == 'tahun' && !empty($tahun)) {
+                $builder->where('YEAR(b.booking_date)', $tahun);
+                $filterText = 'Tahun: ' . $tahun;
+            } else {
+                $filterText = 'Semua Data';
+            }
+        }
+
+        $builder->orderBy('b.booking_date', 'DESC');
+        $bookings = $builder->get()->getResult();
+
+        // Build grouped summary for monthly/yearly views
+        $grouped = [];
+        $groupLabel = '';
+        if (empty($id)) {
+            if ($filterType === 'bulan' && !empty($bulan) && !empty($tahun)) {
+                $g = $this->db->table('bookings')
+                    ->select("DATE(booking_date) as periode, COUNT(*) as jumlah, SUM(COALESCE(price,0)) as total", false)
+                    ->where('MONTH(booking_date)', $bulan)
+                    ->where('YEAR(booking_date)', $tahun);
+                if (!empty($idpelanggan)) $g->where('pelanggan_id', $idpelanggan);
+                if ($status !== '' && $status !== null) $g->where('status', $status);
+                $grouped = $g->groupBy('DATE(booking_date)')->orderBy('DATE(booking_date)', 'ASC')->get()->getResultArray();
+                $groupLabel = 'Tanggal';
+            } elseif ($filterType === 'tahun' && !empty($tahun)) {
+                $g = $this->db->table('bookings')
+                    ->select("MONTH(booking_date) as bln, COUNT(*) as jumlah, SUM(COALESCE(price,0)) as total", false)
+                    ->where('YEAR(booking_date)', $tahun);
+                if (!empty($idpelanggan)) $g->where('pelanggan_id', $idpelanggan);
+                if ($status !== '' && $status !== null) $g->where('status', $status);
+                $rows = $g->groupBy('MONTH(booking_date)')->get()->getResultArray();
+                $bulanIndo = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                $byMonth = [];
+                foreach ($rows as $r) {
+                    $byMonth[(int)$r['bln']] = $r;
+                }
+                for ($m = 1; $m <= 12; $m++) {
+                    $jumlah = isset($byMonth[$m]) ? (int)$byMonth[$m]['jumlah'] : 0;
+                    $total = isset($byMonth[$m]) ? (float)$byMonth[$m]['total'] : 0.0;
+                    $grouped[] = [
+                        'periode' => ($bulanIndo[$m] ?? (string)$m) . ' ' . $tahun,
+                        'jumlah' => $jumlah,
+                        'total' => $total,
+                    ];
+                }
+                $groupLabel = 'Bulan';
+            }
+        }
+
+        // Aggregate summary
+        $summary = [
+            'total_count' => 0,
+            'total_price' => 0,
+            'status' => [
+                'pending' => 0,
+                'confirmed' => 0,
+                'completed' => 0,
+                'cancelled' => 0,
+            ],
+            'payment_type' => [
+                'dp' => 0,
+                'lunas' => 0,
+                'unknown' => 0,
+            ],
+            'bank' => []
+        ];
+        foreach ($bookings as $b) {
+            $summary['total_count']++;
+            $summary['total_price'] += (float)($b->price ?? 0);
+            $st = $b->status ?? 'pending';
+            if (!isset($summary['status'][$st])) {
+                $summary['status'][$st] = 0;
+            }
+            $summary['status'][$st]++;
+            $pt = strtolower((string)($b->payment_type ?? 'unknown'));
+            if (!isset($summary['payment_type'][$pt])) {
+                $summary['payment_type'][$pt] = 0;
+            }
+            $summary['payment_type'][$pt]++;
+            $bk = (string)($b->payment_bank ?? '-');
+            if (!isset($summary['bank'][$bk])) {
+                $summary['bank'][$bk] = 0;
+            }
+            $summary['bank'][$bk]++;
+        }
+
+        // Siapkan data untuk view
+        $logoPath = FCPATH . 'assets/img/catshoplogo.png';
+        $logoData = '';
+        if (file_exists($logoPath)) {
+            $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoData = 'data:image/' . $logoType . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        // Teks status
+        $statusText = '';
+        if ($status === 'pending') {
+            $statusText = 'Pending';
+        } elseif ($status === 'confirmed') {
+            $statusText = 'Dikonfirmasi';
+        } elseif ($status === 'completed') {
+            $statusText = 'Selesai';
+        } elseif ($status === 'cancelled') {
+            $statusText = 'Dibatalkan';
+        } else {
+            $statusText = 'Semua';
+        }
+
+        if (!empty($id)) {
+            $filterText = 'ID Booking: ' . $id;
+            $namaPelanggan = !empty($bookings) ? ($bookings[0]->namapelanggan ?? '-') : 'Tidak ditemukan';
+        }
+
+        $tanggalCetak = date('d-m-Y H:i:s');
+        // Judul dinamis untuk bulan/tahun (Indonesia)
+        $title = 'Laporan Booking Online';
+        if ($filterType === 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $namaBulan = date('F', mktime(0, 0, 0, (int)$bulan, 10));
+            $bulanIndo = [
+                'January' => 'Januari',
+                'February' => 'Februari',
+                'March' => 'Maret',
+                'April' => 'April',
+                'May' => 'Mei',
+                'June' => 'Juni',
+                'July' => 'Juli',
+                'August' => 'Agustus',
+                'September' => 'September',
+                'October' => 'Oktober',
+                'November' => 'November',
+                'December' => 'Desember'
+            ];
+            $namaBulan = $bulanIndo[$namaBulan] ?? $namaBulan;
+            $title = 'Laporan Booking Bulan ' . $namaBulan . ' ' . $tahun;
+        } elseif ($filterType === 'tahun' && !empty($tahun)) {
+            $title = 'Laporan Booking Tahun ' . $tahun;
+        }
+
+        $data = [
+            'title' => $title,
+            'bookings' => $bookings,
+            'summary' => $summary,
+            'grouped' => $grouped,
+            'groupLabel' => $groupLabel,
+            'filter' => [
+                'type' => $filterType,
+                'text' => $filterText ?? 'Semua Data',
+                'pelanggan' => $namaPelanggan ?? 'Semua',
+                'status' => $statusText,
+                'is_detail' => !empty($id),
+            ],
+            'tanggal_cetak' => $tanggalCetak,
+            'logo' => $logoData
+        ];
+
+        $html = view('admin/laporan/booking_pdf', $data);
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('Laporan_Booking_' . date('Ymd_His') . '.pdf', ['Attachment' => false]);
+        exit();
+    }
+
+    public function getBookingPerbulanData()
+    {
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+
+        if (empty($bulan) || empty($tahun)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Parameter bulan dan tahun diperlukan', 'data' => []]);
+        }
+
+        $builder = $this->db->table('bookings b');
+        $builder->select('b.*, p.nama as namapelanggan, p.alamat, p.nohp');
+        $builder->join('pelanggan p', 'p.idpelanggan = b.pelanggan_id OR p.user_id = b.user_id', 'left');
+        if (!empty($idpelanggan)) $builder->where('b.pelanggan_id', $idpelanggan);
+        if ($status !== '' && $status !== null) $builder->where('b.status', $status);
+        $builder->where('MONTH(b.booking_date)', $bulan);
+        $builder->where('YEAR(b.booking_date)', $tahun);
+        $builder->orderBy('b.booking_date', 'ASC');
+        $data = $builder->get()->getResult();
+
+        return $this->response->setJSON(['status' => 'success', 'data' => $data]);
+    }
+
+    public function cetakBookingPerbulanPdf()
+    {
+        $bulan = $this->request->getGet('bulan');
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+
+        if (empty($bulan) || empty($tahun)) {
+            return redirect()->back()->with('error', 'Parameter bulan dan tahun diperlukan');
+        }
+
+        $builder = $this->db->table('bookings b');
+        $builder->select('b.*, p.nama as namapelanggan, p.alamat, p.nohp');
+        $builder->join('pelanggan p', 'p.idpelanggan = b.pelanggan_id OR p.user_id = b.user_id', 'left');
+        if (!empty($idpelanggan)) $builder->where('b.pelanggan_id', $idpelanggan);
+        if ($status !== '' && $status !== null) $builder->where('b.status', $status);
+        $builder->where('MONTH(b.booking_date)', $bulan);
+        $builder->where('YEAR(b.booking_date)', $tahun);
+        $builder->orderBy('b.booking_date', 'ASC');
+        $bookings = $builder->get()->getResult();
+
+        // Summary
+        $summary = ['total_count' => 0, 'total_price' => 0];
+        foreach ($bookings as $b) {
+            $summary['total_count']++;
+            $summary['total_price'] += (float)($b->price ?? 0);
+        }
+
+        $logoPath = FCPATH . 'assets/img/catshoplogo.png';
+        $logoData = '';
+        if (file_exists($logoPath)) {
+            $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoData = 'data:image/' . $logoType . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        $bulanName = date('F', mktime(0, 0, 0, (int)$bulan, 10));
+        $bulanIndo = ['January' => 'Januari', 'February' => 'Februari', 'March' => 'Maret', 'April' => 'April', 'May' => 'Mei', 'June' => 'Juni', 'July' => 'Juli', 'August' => 'Agustus', 'September' => 'September', 'October' => 'Oktober', 'November' => 'November', 'December' => 'Desember'];
+        $bulanName = $bulanIndo[$bulanName] ?? $bulanName;
+
+        $data = [
+            'title' => 'Laporan Booking Bulan ' . $bulanName . ' ' . $tahun,
+            'bookings' => $bookings,
+            'summary' => $summary,
+            'filter' => ['text' => 'Bulan: ' . $bulanName . ' ' . $tahun],
+            'tanggal_cetak' => date('d-m-Y H:i:s'),
+            'logo' => $logoData
+        ];
+        $html = view('admin/laporan/booking_pdf', $data);
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('Laporan_Booking_' . $bulanName . '_' . $tahun . '.pdf', ['Attachment' => false]);
+        exit();
+    }
+
+    public function getBookingPertahunData()
+    {
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+        if (empty($tahun)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Parameter tahun diperlukan', 'data' => []]);
+        }
+        $builder = $this->db->table('bookings b');
+        $builder->select('b.*, p.nama as namapelanggan, p.alamat, p.nohp');
+        $builder->join('pelanggan p', 'p.idpelanggan = b.pelanggan_id OR p.user_id = b.user_id', 'left');
+        if (!empty($idpelanggan)) $builder->where('b.pelanggan_id', $idpelanggan);
+        if ($status !== '' && $status !== null) $builder->where('b.status', $status);
+        $builder->where('YEAR(b.booking_date)', $tahun);
+        $builder->orderBy('b.booking_date', 'ASC');
+        $data = $builder->get()->getResult();
+        return $this->response->setJSON(['status' => 'success', 'data' => $data]);
+    }
+
+    public function cetakBookingPertahunPdf()
+    {
+        $tahun = $this->request->getGet('tahun');
+        $idpelanggan = $this->request->getGet('idpelanggan');
+        $status = $this->request->getGet('status');
+        if (empty($tahun)) {
+            return redirect()->back()->with('error', 'Parameter tahun diperlukan');
+        }
+
+        $builder = $this->db->table('bookings b');
+        $builder->select('b.*, p.nama as namapelanggan, p.alamat, p.nohp');
+        $builder->join('pelanggan p', 'p.idpelanggan = b.pelanggan_id OR p.user_id = b.user_id', 'left');
+        if (!empty($idpelanggan)) $builder->where('b.pelanggan_id', $idpelanggan);
+        if ($status !== '' && $status !== null) $builder->where('b.status', $status);
+        $builder->where('YEAR(b.booking_date)', $tahun);
+        $builder->orderBy('b.booking_date', 'ASC');
+        $bookings = $builder->get()->getResult();
+
+        $summary = ['total_count' => 0, 'total_price' => 0];
+        foreach ($bookings as $b) {
+            $summary['total_count']++;
+            $summary['total_price'] += (float)($b->price ?? 0);
+        }
+
+        $logoPath = FCPATH . 'assets/img/catshoplogo.png';
+        $logoData = '';
+        if (file_exists($logoPath)) {
+            $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $logoData = 'data:image/' . $logoType . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        $data = [
+            'title' => 'Laporan Booking Tahun ' . $tahun,
+            'bookings' => $bookings,
+            'summary' => $summary,
+            'filter' => ['text' => 'Tahun: ' . $tahun],
+            'tanggal_cetak' => date('d-m-Y H:i:s'),
+            'logo' => $logoData
+        ];
+        $html = view('admin/laporan/booking_pdf', $data);
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isPhpEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('Laporan_Booking_Tahun_' . $tahun . '.pdf', ['Attachment' => false]);
         exit();
     }
 }

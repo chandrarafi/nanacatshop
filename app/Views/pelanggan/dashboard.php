@@ -232,10 +232,10 @@
                     Kembali ke Beranda
                 </a>
                 <?php if ($pelanggan): ?>
-                    <button class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition duration-300 flex items-center">
+                    <a href="<?= site_url('pelanggan/profile/edit') ?>" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition duration-300 flex items-center">
                         <i class="fas fa-edit mr-2"></i>
                         Edit Profil
-                    </button>
+                    </a>
                 <?php else: ?>
                     <a href="<?= site_url('pelanggan/complete-profile') ?>" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition duration-300 flex items-center">
                         <i class="fas fa-user-plus mr-2"></i>

@@ -197,6 +197,12 @@
                                  <span>Laporan Perawatan</span>
                              </a>
                          </li>
+                         <li class="nav-item">
+                             <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/booking') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/booking') ?>">
+                                 <i class="bi bi-calendar-check"></i>
+                                 <span>Laporan Booking</span>
+                             </a>
+                         </li>
                      </div>
                  </div>
 
@@ -288,6 +294,12 @@
                          <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/perawatan') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/perawatan') ?>">
                              <i class="bi bi-scissors"></i>
                              <span>Laporan Perawatan</span>
+                         </a>
+                     </li>
+                     <li class="nav-item">
+                         <a class="nav-link <?= str_contains(current_url(), 'admin/laporan/booking') ? 'active' : '' ?>" href="<?= site_url('admin/laporan/booking') ?>">
+                             <i class="bi bi-calendar-check"></i>
+                             <span>Laporan Booking</span>
                          </a>
                      </li>
                  </div>

@@ -26,12 +26,8 @@ class PelangganDashboard extends BaseController
 
     public function index()
     {
-        // Pastikan hanya pelanggan yang bisa akses
-        if (session()->get('role') !== 'pelanggan') {
-            return redirect()->to('admin')->with('error', 'Anda tidak memiliki akses ke halaman ini');
-        }
 
-        // Ambil data pelanggan berdasarkan nama (karena tidak ada relasi langsung)
+        // Ambil data pelanggan berdasarkan user session
         $pelangganData = $this->pelangganModel->where('nama', session()->get('name'))->first();
 
         $data = [
@@ -45,6 +41,44 @@ class PelangganDashboard extends BaseController
         ];
 
         return view('pelanggan/dashboard', $data);
+    }
+
+    public function editProfile()
+    {
+        if (session()->get('role') !== 'pelanggan') {
+            return redirect()->to('admin');
+        }
+        $pelangganData = $this->pelangganModel->where('nama', session()->get('name'))->first();
+        $data = [
+            'title' => 'Edit Profil',
+            'user' => [
+                'name' => session()->get('name'),
+                'email' => session()->get('email'),
+                'username' => session()->get('username')
+            ],
+            'pelanggan' => $pelangganData
+        ];
+        return view('pelanggan/complete_profile', $data);
+    }
+
+    public function updateProfile()
+    {
+        if (session()->get('role') !== 'pelanggan') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Tidak diizinkan']);
+        }
+        $existing = $this->pelangganModel->where('nama', session()->get('name'))->first();
+        if (!$existing) {
+            return $this->doCompleteProfile();
+        }
+        $data = [
+            'jenkel' => $this->request->getPost('jenkel'),
+            'nohp' => $this->request->getPost('nohp'),
+            'alamat' => $this->request->getPost('alamat')
+        ];
+        if (!$this->pelangganModel->update($existing['idpelanggan'], $data)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal memperbarui profil', 'errors' => $this->pelangganModel->errors()]);
+        }
+        return $this->response->setJSON(['status' => 'success', 'message' => 'Profil diperbarui', 'redirect' => site_url('pelanggan')]);
     }
 
     public function completeProfile()

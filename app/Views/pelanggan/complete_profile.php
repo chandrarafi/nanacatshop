@@ -131,6 +131,7 @@
                     </div>
                 </div>
 
+                <?php $isEdit = isset($pelanggan) && !empty($pelanggan); ?>
                 <form id="completeProfileForm" method="post">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -139,9 +140,9 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fas fa-user text-gray-400"></i>
                                 </div>
-                                <input type="text" id="nama" name="nama" required
+                                <input type="text" id="nama" name="nama" required <?= isset($pelanggan) ? '' : '' ?>
                                     class="w-full pl-10 pr-3 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
-                                    placeholder="Masukkan nama lengkap" value="<?= $user['name'] ?>">
+                                    placeholder="Masukkan nama lengkap" value="<?= isset($pelanggan['nama']) ? esc($pelanggan['nama']) : esc($user['name']) ?>">
                             </div>
                         </div>
 
@@ -154,8 +155,8 @@
                                 <select id="jenkel" name="jenkel" required
                                     class="w-full pl-10 pr-3 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300">
                                     <option value="">Pilih Jenis Kelamin</option>
-                                    <option value="L">Laki-laki</option>
-                                    <option value="P">Perempuan</option>
+                                    <option value="L" <?= isset($pelanggan['jenkel']) && $pelanggan['jenkel'] === 'L' ? 'selected' : '' ?>>Laki-laki</option>
+                                    <option value="P" <?= isset($pelanggan['jenkel']) && $pelanggan['jenkel'] === 'P' ? 'selected' : '' ?>>Perempuan</option>
                                 </select>
                             </div>
                         </div>
@@ -169,7 +170,7 @@
                             </div>
                             <input type="tel" id="nohp" name="nohp" required
                                 class="w-full pl-10 pr-3 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300"
-                                placeholder="Masukkan nomor HP">
+                                placeholder="Masukkan nomor HP" value="<?= isset($pelanggan['nohp']) ? esc($pelanggan['nohp']) : '' ?>">
                         </div>
                     </div>
 
@@ -181,14 +182,14 @@
                             </div>
                             <textarea id="alamat" name="alamat" rows="4" required
                                 class="w-full pl-10 pr-3 py-3 border border-pink-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition duration-300 resize-none"
-                                placeholder="Masukkan alamat lengkap"></textarea>
+                                placeholder="Masukkan alamat lengkap"><?= isset($pelanggan['alamat']) ? esc($pelanggan['alamat']) : '' ?></textarea>
                         </div>
                     </div>
 
                     <div class="flex gap-4">
                         <button type="submit" id="btnCompleteProfile" class="flex-1 bg-primary hover:bg-secondary text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
                             <i class="fas fa-save mr-2"></i>
-                            Simpan Profil
+                            <?= $isEdit ? 'Perbarui Profil' : 'Simpan Profil' ?>
                         </button>
                         <a href="<?= site_url('pelanggan') ?>" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
                             <i class="fas fa-times mr-2"></i>
@@ -238,7 +239,7 @@
                 };
 
                 $.ajax({
-                    url: '<?= site_url('pelanggan/complete-profile') ?>',
+                    url: '<?= isset($pelanggan) ? site_url('pelanggan/profile/update') : site_url('pelanggan/complete-profile') ?>',
                     type: 'POST',
                     data: formData,
                     dataType: 'json',
@@ -278,6 +279,3 @@
 </body>
 
 </html>
-
-
-

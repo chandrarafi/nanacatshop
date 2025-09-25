@@ -44,7 +44,14 @@
                         <?php else: foreach ($orders as $order): ?>
                             <tr>
                                 <td class="fw-semibold">#<?= esc($order['order_number']) ?></td>
-                                <td><?= esc($order['pelanggan_id']) ?></td>
+                                <td>
+                                    <?php if (!empty($order['_pelanggan'])): ?>
+                                        <div class="fw-semibold mb-0"><?= esc($order['_pelanggan']['nama']) ?></div>
+                                        <div class="text-muted small">ID: <?= esc($order['pelanggan_id']) ?> • <?= esc($order['_pelanggan']['nohp'] ?? '-') ?></div>
+                                    <?php else: ?>
+                                        <span class="text-muted"><?= esc($order['pelanggan_id']) ?></span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="fw-semibold"><?= rupiah($order['total_amount']) ?></td>
                                 <td>
                                     <div class="small text-muted">Transfer</div>
