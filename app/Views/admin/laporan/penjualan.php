@@ -200,6 +200,10 @@
                                 <td>: <span id="detail_kdpenjualan"></span></td>
                             </tr>
                             <tr>
+                                <th>Sumber</th>
+                                <td>: <span id="detail_sumber"></span></td>
+                            </tr>
+                            <tr>
                                 <th>Tanggal Penjualan</th>
                                 <td>: <span id="detail_tglpenjualan"></span></td>
                             </tr>
@@ -414,7 +418,11 @@
                 success: function(response) {
                     Swal.close();
                     if (response.status === 'success') {
-                        renderTable(response.data);
+                        if (filterType === 'tahun' && response.summary) {
+                            renderYearSummary(response.summary);
+                        } else {
+                            renderTable(response.data);
+                        }
                         $('#btnCetak').prop('disabled', false);
                     } else {
                         Swal.fire({
@@ -565,10 +573,13 @@
                     '<span class="badge badge-success">Selesai</span>' :
                     '<span class="badge badge-warning">Pending</span>';
 
+                const sourceBadge = (item.is_online == 1) ?
+                    '<span class="badge badge-info ml-2">Online</span>' :
+                    '<span class="badge badge-info ml-2">Offline</span>';
                 const row = `
                     <tr>
                         <td class="text-center">${no++}</td>
-                <td>${item.kdpenjualan}</td>
+                <td>${item.kdpenjualan} ${sourceBadge}</td>
                         <td>${formatDate(item.tglpenjualan)}</td>
                 <td>${item.namapelanggan}</td>
                         <td class="text-right">Rp ${formatNumber(item.grandtotal)}</td>
@@ -593,6 +604,63 @@
             });
         }
 
+        // Ringkasan tahunan (nama bulan saja)
+        function renderYearSummary(summary) {
+            const tbody = $('#dataTable tbody');
+            tbody.empty();
+
+            const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            // Header kolom khusus ringkasan
+            $('#dataTable thead tr').html(`
+                <th>No</th>
+                <th>Bulan</th>
+                <th>Transaksi</th>
+                <th>Total</th>
+                <th>Online</th>
+                <th>Total Online</th>
+                <th>Offline</th>
+                <th>Total Offline</th>
+                <th>Aksi</th>
+            `);
+
+            let no = 1;
+            let totalAll = 0,
+                totalOnline = 0,
+                totalOffline = 0;
+            for (let m = 1; m <= 12; m++) {
+                const row = summary[m];
+                totalAll += parseFloat(row.total);
+                totalOnline += parseFloat(row.total_online);
+                totalOffline += parseFloat(row.total_offline);
+                tbody.append(`
+                    <tr>
+                        <td class="text-center">${no++}</td>
+                        <td>${monthNames[m-1]}</td>
+                        <td class="text-center">${row.jumlah}</td>
+                        <td class="text-right">Rp ${formatNumber(row.total)}</td>
+                        <td class="text-center">${row.jumlah_online}</td>
+                        <td class="text-right">Rp ${formatNumber(row.total_online)}</td>
+                        <td class="text-center">${row.jumlah_offline}</td>
+                        <td class="text-right">Rp ${formatNumber(row.total_offline)}</td>
+                        <td class="text-center">-</td>
+                    </tr>
+                `);
+            }
+
+            tbody.append(`
+                <tr class="table-primary">
+                    <th colspan="3" class="text-right">TOTAL</th>
+                    <th class="text-right">Rp ${formatNumber(totalAll)}</th>
+                    <th></th>
+                    <th class="text-right">Rp ${formatNumber(totalOnline)}</th>
+                    <th></th>
+                    <th class="text-right">Rp ${formatNumber(totalOffline)}</th>
+                    <th></th>
+                </tr>
+            `);
+        }
+
         // Fungsi untuk menampilkan modal detail
         function showDetailModal(id, data) {
             const item = data.find(item => item.kdpenjualan === id);
@@ -606,6 +674,7 @@
             $('#detail_status').text(item.status == 1 ? 'Selesai' : 'Pending');
             $('#detail_status').removeClass('text-success text-warning')
                 .addClass(item.status == 1 ? 'text-success' : 'text-warning');
+            $('#detail_sumber').text(item.is_online == 1 ? 'Online' : 'Offline');
 
             // Isi tabel detail
             const tbody = $('#detailTable tbody');
