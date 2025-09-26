@@ -50,16 +50,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="status">Status</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="0">Pending</option>
-                                    <option value="1">Selesai</option>
-                                </select>
-                                <small class="text-muted">*Status 'Selesai' akan langsung menambahkan stok barang</small>
-                            </div>
-                        </div>
+                        <input type="hidden" id="status" name="status" value="1">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="keterangan">Keterangan</label>
