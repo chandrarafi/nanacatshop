@@ -92,19 +92,16 @@
                         <p class="text-xs text-gray-500 mt-2">Pilih salah satu jam yang tersedia.</p>
                     </div>
 
-                    <div class="mb-4">
+                    <!-- <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Pembayaran *</label>
                         <div class="space-y-2">
-                            <label class="flex items-center">
-                                <input type="radio" name="payment_type" value="dp" class="mr-3" checked>
-                                <span class="text-gray-700">DP (Uang Muka)</span>
-                            </label>
                             <label class="flex items-center">
                                 <input type="radio" name="payment_type" value="lunas" class="mr-3">
                                 <span class="text-gray-700">Lunas</span>
                             </label>
                         </div>
-                    </div>
+                    </div> -->
+                    <input type="hidden" name="payment_type" value="lunas">
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Bank Transfer *</label>
@@ -283,8 +280,8 @@
                     formData.append('booking_date', date);
                     formData.append('booking_time', time);
                     formData.append('notes', notes);
-                    formData.append('payment_type', $('input[name="payment_type"]:checked').val());
-                    formData.append('payment_bank', $('input[name="payment_bank"]:checked').val());
+                    formData.append('payment_type', $('input[name="payment_type"]').val());
+                    formData.append('payment_bank', $('input[name="payment_bank"]').val());
                     const proof = document.getElementById('payment_proof');
                     if (proof && proof.files && proof.files[0]) {
                         formData.append('payment_proof', proof.files[0]);
